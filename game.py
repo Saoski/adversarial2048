@@ -17,9 +17,12 @@ class TwentyFortyEight:
     NEW_FOUR_PROBABILITY = 0.1  # 10% chance of generating a 4 instead of a 2
 
     def __init__(self):
-        self.board: list[list[int]] = [[0] * self.BOARD_SIZE] * self.BOARD_SIZE
+        self.board: list[list[int]] = [[0] * 4 for _ in range(4)]
         self.num_tiles = 0  # The number of tiles that are not zero
         self.score = 0
+        # Generate two tiles
+        self.generate_new_tile()
+        self.generate_new_tile()
 
     def generate_new_tile(self) -> None:
         """Randomly add a new tile with a value of 2 or 4 (random)"""
@@ -63,6 +66,17 @@ class TwentyFortyEight:
                 for row in range(self.BOARD_SIZE):
                     for col in reversed(range(self.BOARD_SIZE)):
                         self._slide_block(row, col, direction)
+
+    def is_game_over(self) -> bool:
+        """Determines if the game is over
+
+        Returns:
+            bool: true if there are no empty spots and false otherwise
+        """
+        for row in self.board:
+            if 0 in row:
+                return False
+        return True
 
     def _slide_block(self, row: int, col: int, direction: Direction) -> None:
         """Slides the given block in the given direction, handling collisions and merges accordingly
@@ -125,3 +139,11 @@ class TwentyFortyEight:
         """
         return row in range(self.BOARD_SIZE) and col in range(self.BOARD_SIZE)
 
+    def __str__(self) -> str:
+        # New spell just dropped 🫃
+        return (
+            "\n".join(
+                [" ".join([str(element) for element in row]) for row in self.board]
+            )
+            + f"\nScore: {self.score}"
+        )
