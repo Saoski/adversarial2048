@@ -39,53 +39,81 @@ class TwentyFortyEight:
         else:
             self.board[random_coord[0]][random_coord[1]] = 2
 
-    def tilt(self, direction: Direction) -> None:
+    def tilt(self, direction: Direction) -> bool:
         """tilts the board in the given collection, handling collisions and merges accordingly
 
         Args:
             direction (Direction): the direction to tilt the board in
+        Returns:
+            bool: true if some cell is moved and false otherwise
         """
+        cell_moved = False
         match direction:
             case Direction.UP:
                 # Works fine as normal
                 for row in range(self.BOARD_SIZE):
                     for col in range(self.BOARD_SIZE):
-                        self._slide_block(row, col, direction)
+                        if self._slide_block(row, col, direction):
+                            cell_moved = True
             case Direction.DOWN:
                 # Start from bottom row to make collision logic easier
                 for row in reversed(range(self.BOARD_SIZE)):
                     for col in range(self.BOARD_SIZE):
-                        self._slide_block(row, col, direction)
+                        if self._slide_block(row, col, direction):
+                            cell_moved = True
             case Direction.LEFT:
                 # Works fine as normal
                 for row in range(self.BOARD_SIZE):
                     for col in range(self.BOARD_SIZE):
-                        self._slide_block(row, col, direction)
+                        if self._slide_block(row, col, direction):
+                            cell_moved = True
             case Direction.RIGHT:
                 # Start from right column to make collision logic easier
                 for row in range(self.BOARD_SIZE):
                     for col in reversed(range(self.BOARD_SIZE)):
-                        self._slide_block(row, col, direction)
+                        if self._slide_block(row, col, direction):
+                            cell_moved = True
+
+        return cell_moved
 
     def is_game_over(self) -> bool:
         """Determines if the game is over
 
         Returns:
-            bool: true if there are no empty spots and false otherwise
+            bool: true if the user in unable to make any moves and false otherwise
         """
-        for row in self.board:
-            if 0 in row:
-                return False
+        # The game is over when no cells have neighboring cells that are equal or zero
+        for row in range(self.BOARD_SIZE):
+            for col in range(self.BOARD_SIZE):
+                current_val = self.board[row][col]
+                if self._in_bounds(row + 1, col):
+                    if self.board[row + 1][col] == current_val:
+                        return False
+                if self._in_bounds(row - 1, col):
+                    if self.board[row - 1][col] == current_val:
+                        return False
+                if self._in_bounds(row, col + 1):
+                    if self.board[row][col + 1] == current_val:
+                        return False
+                if self._in_bounds(row, col - 1):
+                    if self.board[row][col - 1] == current_val:
+                        return False
         return True
 
-    def _slide_block(self, row: int, col: int, direction: Direction) -> None:
+    def _slide_block(self, row: int, col: int, direction: Direction) -> bool:
         """Slides the given block in the given direction, handling collisions and merges accordingly
 
         Args:
             row (int): the row of the cell to slide
             col (int): the column of the row to slide
             direction (Direction): the direction to slide the cell in
+        Returns:
+            bool: true if the cell is moved and false otherwise
         """
+        block_val: int = self.board[row][col]
+        if block_val == 0:
+            return False
+
         col_offset: int = 0
         row_offset: int = 0
         match direction:
@@ -98,10 +126,9 @@ class TwentyFortyEight:
             case Direction.RIGHT:
                 col_offset = 1
 
-        block_val: int = self.board[row][col]
-
         curr_row = row
         curr_col = col
+        block_moved = False
         while True:
             prev_row = curr_row
             prev_col = curr_col
@@ -109,11 +136,13 @@ class TwentyFortyEight:
             curr_col += col_offset
             # Check for wall collisions
             if not self._in_bounds(curr_row, curr_col):
-                return
+                return block_moved
             # Check for block collisions
             elif (other_val := self.board[curr_row][curr_col]) != 0:
                 # Should I merge or collide?
                 if other_val == block_val:  # merge
+                    print("Merged!")
+                    block_moved = True
                     self.board[curr_row][curr_col] *= 2
                     self.board[prev_row][prev_col] = 0
                     # Continue in case there are further merges
@@ -122,8 +151,10 @@ class TwentyFortyEight:
                     block_val *= 2
                     self.score += block_val
                 else:  # collide
-                    return
+                    return block_moved
             else:  # No collision
+                print("No collision!")
+                block_moved = True
                 self.board[curr_row][curr_col] = block_val
                 self.board[prev_row][prev_col] = 0
 
