@@ -153,7 +153,7 @@ class TwentyFortyEight:
                 else:  # collide
                     return block_moved
             else:  # No collision
-                print("No collision!")
+                # print("No collision!")
                 block_moved = True
                 self.board[curr_row][curr_col] = block_val
                 self.board[prev_row][prev_col] = 0
