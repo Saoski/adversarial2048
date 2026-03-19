@@ -25,31 +25,28 @@ def random(game, other_fn) -> [float, float, float, float]:
     ]
 
 
+def compute_direction(moves) -> Direction:
+    choice = r.random()
+    sum = 0
+    for i in range(0, 3):
+        sum += moves[i]
+        if choice < sum:
+            match i:
+                case 0:
+                    return Direction.UP
+                case 1:
+                    return Direction.DOWN
+                case 2:
+                    return Direction.LEFT
+    return Direction.RIGHT
+
+
 def ai(game, player_fn, adversary_fn) -> None:
     while True:
         print(str(game))
 
         player_moves = player_fn(game, adversary_fn)
-        choice = r.random()
-        sum = 0
-        move = Direction.RIGHT
-        for i in range(0, len(player_moves)):
-            sum += player_moves[i]
-            if choice < sum:
-                match i:
-                    case 0:
-                        move = Direction.UP
-                        break
-                    case 1:
-                        move = Direction.DOWN
-                        break
-                    case 2:
-                        move = Direction.LEFT
-                        break
-                    case 3:
-                        move = Direction.RIGHT
-                        break
-                break
+        move = compute_direction(player_moves)
         game.tilt(move)
         print("Player: ", move)
         if game.is_game_over():
@@ -57,26 +54,7 @@ def ai(game, player_fn, adversary_fn) -> None:
             break
 
         adversary_moves = adversary_fn(game, player_fn)
-        choice = r.random()
-        sum = 0
-        move = Direction.RIGHT
-        for i in range(0, len(player_moves)):
-            sum += player_moves[i]
-            if choice < sum:
-                match i:
-                    case 0:
-                        move = Direction.UP
-                        break
-                    case 1:
-                        move = Direction.DOWN
-                        break
-                    case 2:
-                        move = Direction.LEFT
-                        break
-                    case 3:
-                        move = Direction.RIGHT
-                        break
-                break
+        move = compute_direction(adversary_moves)
         game.tilt(move)
         print("Adversary: ", move)
         if game.is_game_over():
