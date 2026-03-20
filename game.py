@@ -47,31 +47,34 @@ class TwentyFortyEight:
         Returns:
             bool: true if some cell is moved and false otherwise
         """
-        cell_moved = False
+        already_merged: set[tuple[int, int]] = (
+            set()
+        )  # cells that already merged can't do so again
+        cell_moved: bool = False
         match direction:
             case Direction.UP:
                 # Works fine as normal
                 for row in range(self.BOARD_SIZE):
                     for col in range(self.BOARD_SIZE):
-                        if self._slide_block(row, col, direction):
+                        if self._slide_block(row, col, direction, already_merged):
                             cell_moved = True
             case Direction.DOWN:
                 # Start from bottom row to make collision logic easier
                 for row in reversed(range(self.BOARD_SIZE)):
                     for col in range(self.BOARD_SIZE):
-                        if self._slide_block(row, col, direction):
+                        if self._slide_block(row, col, direction, already_merged):
                             cell_moved = True
             case Direction.LEFT:
                 # Works fine as normal
                 for row in range(self.BOARD_SIZE):
                     for col in range(self.BOARD_SIZE):
-                        if self._slide_block(row, col, direction):
+                        if self._slide_block(row, col, direction, already_merged):
                             cell_moved = True
             case Direction.RIGHT:
                 # Start from right column to make collision logic easier
                 for row in range(self.BOARD_SIZE):
                     for col in reversed(range(self.BOARD_SIZE)):
-                        if self._slide_block(row, col, direction):
+                        if self._slide_block(row, col, direction, already_merged):
                             cell_moved = True
 
         return cell_moved
@@ -86,6 +89,8 @@ class TwentyFortyEight:
         for row in range(self.BOARD_SIZE):
             for col in range(self.BOARD_SIZE):
                 current_val = self.board[row][col]
+                if current_val == 0:
+                    return False
                 if self._in_bounds(row + 1, col):
                     if self.board[row + 1][col] == current_val:
                         return False
@@ -100,13 +105,16 @@ class TwentyFortyEight:
                         return False
         return True
 
-    def _slide_block(self, row: int, col: int, direction: Direction) -> bool:
+    def _slide_block(
+        self, row: int, col: int, direction: Direction, merged_set: set[tuple[int, int]]
+    ) -> bool:
         """Slides the given block in the given direction, handling collisions and merges accordingly
 
         Args:
             row (int): the row of the cell to slide
             col (int): the column of the row to slide
             direction (Direction): the direction to slide the cell in
+            merged_set (set[tuple[int, int]]): A set of coordinated for cells that have already merged
         Returns:
             bool: true if the cell is moved and false otherwise
         """
@@ -140,16 +148,15 @@ class TwentyFortyEight:
             # Check for block collisions
             elif (other_val := self.board[curr_row][curr_col]) != 0:
                 # Should I merge or collide?
-                if other_val == block_val:  # merge
-                    print("Merged!")
-                    block_moved = True
+                # For merges, we need to make sure we dont merge blocks that have already been merged
+                # for example a, a lift wilt with 2 * 2 4 should result in 4 4 * * and not 8 * * *
+                if (
+                    other_val == block_val and (curr_row, curr_col) not in merged_set
+                ):  # merge
                     self.board[curr_row][curr_col] *= 2
                     self.board[prev_row][prev_col] = 0
-                    # Continue in case there are further merges
-                    row = curr_row
-                    col = curr_col
-                    block_val *= 2
-                    self.score += block_val
+                    merged_set.add((curr_row, curr_col))
+                    return True
                 else:  # collide
                     return block_moved
             else:  # No collision
