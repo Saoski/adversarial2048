@@ -17,6 +17,13 @@ class GameBoard:
     ) -> None:
         self.surf = surf
         self.game_state = game_state
+        self._score_font = pg.font.Font(None, 64)
+        self._score_rect = pg.Rect(
+            pos[0] + (cell_size + self.CELL_GAP) * TwentyFortyEight.BOARD_SIZE / 2,
+            pos[1] - 20,
+            1,
+            1,
+        )
         self.cells: list[list[Cell]] = []
         for i in range(TwentyFortyEight.BOARD_SIZE):
             self.cells.append([])
@@ -38,6 +45,15 @@ class GameBoard:
         for cell_row in self.cells:
             for cell in cell_row:
                 cell.draw()
+
+        self._draw_score()
+
+    def _draw_score(self):
+        text_surface = self._score_font.render(
+            f"Score: {str(self.game_state.score)}", True, "white"
+        )
+        text_rect = text_surface.get_rect(center=self._score_rect.center)
+        self.surf.blit(text_surface, text_rect)
 
 
 class Cell:
