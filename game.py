@@ -1,5 +1,4 @@
 import random as r
-
 from enum import Enum
 
 
@@ -156,6 +155,7 @@ class TwentyFortyEight:
                     self.board[curr_row][curr_col] *= 2
                     self.board[prev_row][prev_col] = 0
                     merged_set.add((curr_row, curr_col))
+                    self.score += other_val * 2
                     return True
                 else:  # collide
                     return block_moved
