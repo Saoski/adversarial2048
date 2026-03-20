@@ -43,17 +43,43 @@ class GameBoard:
 class Cell:
     # Colors from: https://loading.io/color/feature/Spectral-11/
     CELL_COLORS = [
-        "#9e0142",
-        "#d53e4f",
-        "#f46d43",
-        "#fdae61",
-        "#fee08b",
-        "#ffffbf",
-        "#e6f598",
-        "#abdda4",
-        "#66c2a5",
-        "#3288bd",
-        "#5e4fa2",
+        "#eee4da",  # 2
+        "#ede0c8",  # 4
+        "#f2b179",  # 8
+        "#f59563",  # 16
+        "#f67c5f",  # 32
+        "#f65e3b",  # 64
+        "#edcf72",  # 128
+        "#edcc61",  # 256
+        "#edc850",  # 512
+        "#edc53f",  # 1024
+        "#edc22e",  # 2048
+        "#3c3a32",  # 4096
+        "#1f1e18",  # 8192
+        "#6db5e8",  # 16384
+        "#3a7bd5",  # 32768
+        "#1a1aff",  # 65536
+        "#9b00ff",  # 131072 — the legendary max tile, a royal purple
+    ]
+
+    TEXT_COLORS = [
+        "#776e65",  # 2            — dark warm gray
+        "#776e65",  # 4            — dark warm gray
+        "#f9f6f2",  # 8            — off-white
+        "#f9f6f2",  # 16           — off-white
+        "#f9f6f2",  # 32           — off-white
+        "#f9f6f2",  # 64           — off-white
+        "#f9f6f2",  # 128          — off-white
+        "#f9f6f2",  # 256          — off-white
+        "#f9f6f2",  # 512          — off-white
+        "#f9f6f2",  # 1024         — off-white
+        "#f9f6f2",  # 2048         — off-white
+        "#f9f6f2",  # 4096         — off-white
+        "#f9f6f2",  # 8192         — off-white
+        "#f9f6f2",  # 16384        — off-white
+        "#f9f6f2",  # 32768        — off-white
+        "#f9f6f2",  # 65536        — off-white
+        "#f9f6f2",  # 131072       — off-white
     ]
 
     def __init__(self, rect: RectLike, surf: Surface, value: int) -> None:
@@ -66,12 +92,14 @@ class Cell:
         # Draw cell base
         image = pg.Surface(self.rect.size)
         color = None
-        text_color = pg.Color("#000000")
+        text_color = None
         if self.value == 0:
-            color = pg.Color("#888888")
+            color = pg.Color("#827b74")
+            text_color = pg.Color("#776e65")
         else:
-            # TODO: handle numbers greater than 2048
-            color = pg.Color(self.CELL_COLORS[int(log2(self.value))])
+            color_index = int(log2(self.value))
+            color = pg.Color(self.CELL_COLORS[color_index - 1])
+            text_color = pg.Color(self.TEXT_COLORS[color_index - 1])
         image.fill(color)
         self.surf.blit(image, image.get_rect(center=self.rect.center))
 
