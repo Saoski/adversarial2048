@@ -1,7 +1,7 @@
 from game import TwentyFortyEight, Direction
 import random as r
 
-def random(game, other_fn) -> [float, float, float, float]:
+def random(game, other_fn) -> tuple[float, float, float, float]:
     # up, down, left, right
     a = [0,0,0,0]
     num = 0
@@ -17,12 +17,12 @@ def random(game, other_fn) -> [float, float, float, float]:
     if game.tilt(Direction.RIGHT):
         a[3] = 1
         num += 1
-    return [
+    return (
         a[0] * 1/num,
         a[1] * 1/num,
         a[2] * 1/num,
         a[3] * 1/num
-    ]
+    )
 
 
 def compute_direction(moves) -> Direction:
