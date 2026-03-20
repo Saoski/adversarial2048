@@ -110,6 +110,7 @@ def main() -> None:
 
     # Test cell
     game_board = GameBoard((325, 50), 150, game, window_surface)
+    game_over: bool = False
 
     running = True
     while running:
@@ -118,18 +119,22 @@ def main() -> None:
             if event.type == pg.QUIT:
                 running = False
             elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_w:  # Forgive my repeated code
-                    game.tilt(Direction.UP)
-                    game.generate_new_tile()
-                elif event.key == pg.K_s:
-                    game.tilt(Direction.DOWN)
-                    game.generate_new_tile()
-                elif event.key == pg.K_a:
-                    game.tilt(Direction.LEFT)
-                    game.generate_new_tile()
-                elif event.key == pg.K_d:
-                    game.tilt(Direction.RIGHT)
-                    game.generate_new_tile()
+                if not game_over:
+                    if event.key == pg.K_w:  # Forgive my repeated code
+                        # Only make a new tile if some tile moved
+                        if game.tilt(Direction.UP):
+                            game.generate_new_tile()
+                    elif event.key == pg.K_s:
+                        if game.tilt(Direction.DOWN):
+                            game.generate_new_tile()
+                    elif event.key == pg.K_a:
+                        if game.tilt(Direction.LEFT):
+                            game.generate_new_tile()
+                    elif event.key == pg.K_d:
+                        if game.tilt(Direction.RIGHT):
+                            game.generate_new_tile()
+
+                    game_over = game.is_game_over()
 
             # Pass events to UI elements
             manager.process_events(event)

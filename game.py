@@ -1,5 +1,4 @@
 import random as r
-
 from enum import Enum
 
 

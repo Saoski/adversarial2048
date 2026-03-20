@@ -27,7 +27,6 @@ class GameBoard:
                     cell_size,
                     cell_size,
                 )
-                print(cell_rect)
                 self.cells[i].append(Cell(cell_rect, surf, game_state.board[i][j]))
 
     def update(self):
@@ -67,15 +66,17 @@ class Cell:
         # Draw cell base
         image = pg.Surface(self.rect.size)
         color = None
+        text_color = pg.Color("#000000")
         if self.value == 0:
             color = pg.Color("#888888")
         else:
+            # TODO: handle numbers greater than 2048
             color = pg.Color(self.CELL_COLORS[int(log2(self.value))])
         image.fill(color)
         self.surf.blit(image, image.get_rect(center=self.rect.center))
 
         # Render the text on a surface
-        text_surface = self._cell_num_font.render(str(self.value), True, "white")
+        text_surface = self._cell_num_font.render(str(self.value), True, text_color)
         # Get the text rectangle but with the center where we want it
         text_rect = text_surface.get_rect(center=self.rect.center)
         # Draw that text onto the given surface
