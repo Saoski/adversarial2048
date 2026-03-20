@@ -1,7 +1,7 @@
-from game import TwentyFortyEight 
+from game import TwentyFortyEight, Direction
 import pygame as pg
 import pygame_gui as gui
-from components.game_board import Cell
+from components.game_board import GameBoard
 
 # Quickstart guide for Pygame GUI: https://pygame-gui.readthedocs.io/en/latest/quick_start.html#quick-start-guides
 WINDOW_WIDTH = 1280
@@ -10,8 +10,6 @@ WINDOW_DIMS = (WINDOW_WIDTH, WINDOW_HEIGHT)
 TARGET_FRAME_RATE = 60
 CELL_SIZE = 150
 
-def draw_game(manager: gui.UIManager):
-    pass
 
 def main() -> None:
     pg.init()
@@ -28,7 +26,7 @@ def main() -> None:
     manager = gui.UIManager(WINDOW_DIMS)
 
     # Test cell
-    test_cell = Cell((300, 300, CELL_SIZE, CELL_SIZE), window_surface, 4)
+    game_board = GameBoard((325, 50), 150, game, window_surface)
 
     running = True
     while running:
@@ -36,6 +34,19 @@ def main() -> None:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_w:  # Forgive my repeated code
+                    game.tilt(Direction.UP)
+                    game.generate_new_tile()
+                elif event.key == pg.K_s:
+                    game.tilt(Direction.DOWN)
+                    game.generate_new_tile()
+                elif event.key == pg.K_a:
+                    game.tilt(Direction.LEFT)
+                    game.generate_new_tile()
+                elif event.key == pg.K_d:
+                    game.tilt(Direction.RIGHT)
+                    game.generate_new_tile()
 
             # Pass events to UI elements
             manager.process_events(event)
@@ -46,7 +57,9 @@ def main() -> None:
         # fill the screen with a color to wipe away anything from last frame
         window_surface.blit(background, (0, 0))
         manager.draw_ui(window_surface)
-        test_cell.draw()
+
+        game_board.update()
+        game_board.draw()
 
         pg.display.update()
 
