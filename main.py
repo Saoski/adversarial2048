@@ -10,6 +10,7 @@ WINDOW_HEIGHT = 720
 WINDOW_DIMS = (WINDOW_WIDTH, WINDOW_HEIGHT)
 TARGET_FRAME_RATE = 60
 CELL_SIZE = 150
+TIME_DELAY= 100
 
 
 def random(game, other_fn) -> tuple[float, float, float, float]:
@@ -47,14 +48,29 @@ def compute_direction(moves) -> Direction:
     return Direction.RIGHT
 
 
-def ai(game, player_fn, adversary_fn) -> None:
+def ai(player_fn, adversary_fn, window_surface) -> None:
+    game = TwentyFortyEight()
+    background = pg.Surface((800, 600))
+    background.fill(pg.Color("#000000"))
+    game_board = GameBoard((325, 50), 150, game, window_surface)
     while True:
         print(str(game))
+        window_surface.blit(background, (0, 0))
+        game_board.update()
+        game_board.draw()
+        pg.display.update()
+        pg.time.delay(TIME_DELAY)
 
         player_moves = player_fn(game, adversary_fn)
         move = compute_direction(player_moves)
         game.tilt(move)
         print("Player: ", move)
+
+        window_surface.blit(background, (0, 0))
+        game_board.update()
+        game_board.draw()
+        pg.display.update()
+        pg.time.delay(TIME_DELAY)
         if game.is_game_over():
             print("a")
             break
@@ -63,55 +79,40 @@ def ai(game, player_fn, adversary_fn) -> None:
         move = compute_direction(adversary_moves)
         game.tilt(move)
         print("Adversary: ", move)
+        window_surface.blit(background, (0, 0))
+        game_board.update()
+        game_board.draw()
+        pg.display.update()
+        pg.time.delay(TIME_DELAY)
         if game.is_game_over():
             print("b")
             break
         game.generate_new_tile()
+        window_surface.blit(background, (0, 0))
+        game_board.update()
+        game_board.draw()
+        pg.display.update()
+        pg.time.delay(TIME_DELAY)
         if game.is_game_over():
             print("c")
             break
+    running = True
     print(str(game))
+    while running:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
 
 
-def game_loop(game: TwentyFortyEight) -> None:
-    while not game.is_game_over():
-        print(str(game))
-        direction: str = input("> ")
-        direction_enum: Direction = Direction.DOWN  # Default to suppress warnings
-        match direction:
-            case "u":
-                direction_enum = Direction.UP
-            case "d":
-                direction_enum = Direction.DOWN
-            case "l":
-                direction_enum = Direction.LEFT
-            case "r":
-                direction_enum = Direction.RIGHT
-            case _:
-                return
-        state_changed = game.tilt(direction_enum)
-        if state_changed:
-            game.generate_new_tile()
-
-
-def main() -> None:
-    pg.init()
-
+def player_game_loop(
+    window_surface: pg.Surface, background: pg.Surface, manager: gui.UIManager
+):
     # Initialize game state
     game: TwentyFortyEight = TwentyFortyEight()
+    game_board: GameBoard = GameBoard((325, 50), 150, game, window_surface)
 
-    window_surface = pg.display.set_mode(WINDOW_DIMS)
     clock = pg.time.Clock()
-    background = pg.Surface((800, 600))
-    background.fill(pg.Color("#000000"))
-
-    # Manages update, draw and event handling functions of all the UI elements
-    manager = gui.UIManager(WINDOW_DIMS)
-
-    # Test cell
-    game_board = GameBoard((325, 50), 150, game, window_surface)
-    game_over: bool = False
-
+    game_over = False
     running = True
     while running:
         time_delta = clock.tick(TARGET_FRAME_RATE) / 1000.0
@@ -150,6 +151,20 @@ def main() -> None:
         game_board.draw()
 
         pg.display.update()
+
+
+def main() -> None:
+    pg.init()
+
+    window_surface = pg.display.set_mode(WINDOW_DIMS)
+    background = pg.Surface((800, 600))
+    background.fill(pg.Color("#000000"))
+
+    # Manages update, draw and event handling functions of all the UI elements
+    manager = gui.UIManager(WINDOW_DIMS)
+
+    # player_game_loop(window_surface, background, manager)
+    ai(random, random, window_surface)
 
     pg.quit()
 
