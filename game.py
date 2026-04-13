@@ -16,7 +16,7 @@ class TwentyFortyEight:
     NEW_FOUR_PROBABILITY = 0.1  # 10% chance of generating a 4 instead of a 2
 
     def __init__(self):
-        self.board: list[list[int]] = [[0] * 4 for _ in range(4)]
+        self.board: list[list[int]] = [[0] * self.BOARD_SIZE for _ in range(self.BOARD_SIZE)]
         self.num_tiles = 0  # The number of tiles that are not zero
         self.score = 0
         # Generate two tiles
