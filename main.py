@@ -2,7 +2,7 @@ from game import TwentyFortyEight, Direction
 import pygame as pg
 import pygame_gui as gui
 from components.game_board import GameBoard
-import random as r
+from models import random_play
 
 # Quickstart guide for Pygame GUI: https://pygame-gui.readthedocs.io/en/latest/quick_start.html#quick-start-guides
 WINDOW_WIDTH = 1280
@@ -12,43 +12,7 @@ TARGET_FRAME_RATE = 60
 CELL_SIZE = 150
 TIME_DELAY= 100
 
-
-def random(game, other_fn) -> tuple[float, float, float, float]:
-    # up, down, left, right
-    a = [0, 0, 0, 0]
-    num = 0
-    if game.tilt(Direction.UP):
-        a[0] = 1
-        num += 1
-    if game.tilt(Direction.DOWN):
-        a[1] = 1
-        num += 1
-    if game.tilt(Direction.LEFT):
-        a[2] = 1
-        num += 1
-    if game.tilt(Direction.RIGHT):
-        a[3] = 1
-        num += 1
-    return (a[0] * 1 / num, a[1] * 1 / num, a[2] * 1 / num, a[3] * 1 / num)
-
-
-def compute_direction(moves) -> Direction:
-    choice = r.random()
-    sum = 0
-    for i in range(0, 3):
-        sum += moves[i]
-        if choice < sum:
-            match i:
-                case 0:
-                    return Direction.UP
-                case 1:
-                    return Direction.DOWN
-                case 2:
-                    return Direction.LEFT
-    return Direction.RIGHT
-
-
-def ai(player_fn, adversary_fn, window_surface) -> None:
+def run_game(player_fn, adversary_fn, window_surface) -> None:
     game = TwentyFortyEight()
     background = pg.Surface((800, 600))
     background.fill(pg.Color("#000000"))
@@ -61,8 +25,7 @@ def ai(player_fn, adversary_fn, window_surface) -> None:
         pg.display.update()
         pg.time.delay(TIME_DELAY)
 
-        player_moves = player_fn(game, adversary_fn)
-        move = compute_direction(player_moves)
+        move: Direction = player_fn(game, adversary_fn)
         game.tilt(move)
         print("Player: ", move)
 
@@ -75,8 +38,7 @@ def ai(player_fn, adversary_fn, window_surface) -> None:
             print("a")
             break
 
-        adversary_moves = adversary_fn(game, player_fn)
-        move = compute_direction(adversary_moves)
+        move: Direction = adversary_fn(game, player_fn)
         game.tilt(move)
         print("Adversary: ", move)
         window_surface.blit(background, (0, 0))
@@ -164,7 +126,7 @@ def main() -> None:
     manager = gui.UIManager(WINDOW_DIMS)
 
     # player_game_loop(window_surface, background, manager)
-    ai(random, random, window_surface)
+    run_game(random_play, random_play, window_surface)
 
     pg.quit()
 
