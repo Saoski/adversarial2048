@@ -10,7 +10,8 @@ WINDOW_HEIGHT = 720
 WINDOW_DIMS = (WINDOW_WIDTH, WINDOW_HEIGHT)
 TARGET_FRAME_RATE = 60
 CELL_SIZE = 150
-TIME_DELAY= 100
+TIME_DELAY = 500
+
 
 def run_game(player_fn, adversary_fn, window_surface) -> None:
     game = TwentyFortyEight()
@@ -25,7 +26,10 @@ def run_game(player_fn, adversary_fn, window_surface) -> None:
         pg.display.update()
         pg.time.delay(TIME_DELAY)
 
-        move: Direction = player_fn(game, adversary_fn)
+        move: Direction | None = player_fn(game, adversary_fn)
+        if move is None:
+            print("B won")
+            break
         game.tilt(move)
         print("Player: ", move)
 
@@ -38,7 +42,10 @@ def run_game(player_fn, adversary_fn, window_surface) -> None:
             print("a")
             break
 
-        move: Direction = adversary_fn(game, player_fn)
+        move: Direction | None = adversary_fn(game, player_fn)
+        if move is None:
+            print("A won")
+            break
         game.tilt(move)
         print("Adversary: ", move)
         window_surface.blit(background, (0, 0))
@@ -46,18 +53,7 @@ def run_game(player_fn, adversary_fn, window_surface) -> None:
         game_board.draw()
         pg.display.update()
         pg.time.delay(TIME_DELAY)
-        if game.is_game_over():
-            print("b")
-            break
         game.generate_new_tile()
-        window_surface.blit(background, (0, 0))
-        game_board.update()
-        game_board.draw()
-        pg.display.update()
-        pg.time.delay(TIME_DELAY)
-        if game.is_game_over():
-            print("c")
-            break
     running = True
     print(str(game))
     while running:
