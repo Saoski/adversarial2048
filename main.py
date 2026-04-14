@@ -10,7 +10,7 @@ WINDOW_HEIGHT = 720
 WINDOW_DIMS = (WINDOW_WIDTH, WINDOW_HEIGHT)
 TARGET_FRAME_RATE = 60
 CELL_SIZE = 150
-TIME_DELAY = 500
+TIME_DELAY = 10
 
 
 def run_game(player_fn, adversary_fn, window_surface) -> None:

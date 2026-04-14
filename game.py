@@ -20,8 +20,7 @@ class TwentyFortyEight:
         self.board: list[list[int]] = [
             [0] * self.BOARD_SIZE for _ in range(self.BOARD_SIZE)
         ]
-        self.saved_board: list[list[int]] = []
-        self.num_tiles = 0  # The number of tiles that are not zero
+        self.saved_board: list[list[int]] = []  # A copy of the board for convenience
         self.score = 0
         # Generate two tiles
         self.generate_new_tile()
@@ -92,8 +91,10 @@ class TwentyFortyEight:
             bool: True if the board can be tilted in the given direction and False otherwise
         """
         self.saved_board = deepcopy(self.board)
+        previous_score = self.score
         can_tilt: bool = self.tilt(direction)
         self.board = self.saved_board
+        self.score = previous_score
         return can_tilt
 
     def is_game_over(self) -> bool:
