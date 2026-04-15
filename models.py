@@ -2,7 +2,8 @@ from game import TwentyFortyEight, Direction
 from collections.abc import Callable
 from random import choice
 
-def random_play(game: TwentyFortyEight, other_fn: Callable) -> Direction:
+
+def random_play(game: TwentyFortyEight, other_fn: Callable) -> Direction | None:
     """Returns a random valid move direction
 
     Args:
@@ -10,7 +11,8 @@ def random_play(game: TwentyFortyEight, other_fn: Callable) -> Direction:
         other_fn (Callable): unused
 
     Returns:
-        Direction: the next direction to be taken
+        Direction: the next direction to be taken or None if there are no possible moves
     """
     # The condition filters out moves that don't move anything (invalid)
-    return choice([direction for direction in Direction if game.tilt(direction)])
+    choices = [direction for direction in Direction if game.can_tilt(direction)]
+    return choice(choices) if len(choices) != 0 else None
