@@ -2,7 +2,7 @@ from game import TwentyFortyEight, Direction
 import pygame as pg
 import pygame_gui as gui
 from components.game_board import GameBoard
-from models import random_play
+from models import random_play, min_max_play
 
 # Quickstart guide for Pygame GUI: https://pygame-gui.readthedocs.io/en/latest/quick_start.html#quick-start-guides
 WINDOW_WIDTH = 1280
@@ -10,7 +10,16 @@ WINDOW_HEIGHT = 720
 WINDOW_DIMS = (WINDOW_WIDTH, WINDOW_HEIGHT)
 TARGET_FRAME_RATE = 60
 CELL_SIZE = 150
-TIME_DELAY = 10
+TIME_DELAY = 0
+
+
+def update_gui(window_surface: pg.Surface, game_board: GameBoard) -> None:
+    background = pg.Surface((800, 600))
+    background.fill(pg.Color("#000000"))
+    window_surface.blit(background, (0, 0))
+    game_board.update()
+    game_board.draw()
+    pg.display.update()
 
 
 def run_game(player_fn, adversary_fn, window_surface) -> None:
@@ -53,9 +62,53 @@ def run_game(player_fn, adversary_fn, window_surface) -> None:
         game_board.draw()
         pg.display.update()
         pg.time.delay(TIME_DELAY)
-        game.generate_new_tile()
+        game.generate_new_random_tile()
     running = True
     print(str(game))
+    while running:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
+
+
+def run_minimax(window_surface) -> None:
+    game_board = GameBoard((325, 50), 150, TwentyFortyEight(), window_surface)
+    background = pg.Surface((800, 600))
+    background.fill(pg.Color("#000000"))
+    running = True
+    while running:
+        print(str(game_board.game_state))
+        update_gui(window_surface, game_board)
+        pg.time.delay(TIME_DELAY)
+
+        new_game_state: TwentyFortyEight | None = min_max_play(
+            game_board.game_state, False, 4, isMin=False
+        )
+        if new_game_state is None:
+            print("B won")
+            break
+        game_board.game_state = new_game_state
+
+        update_gui(window_surface, game_board)
+        pg.time.delay(TIME_DELAY)
+        if game_board.game_state.is_game_over():
+            print("a")
+            break
+
+        new_game_state: TwentyFortyEight | None = min_max_play(
+            game_board.game_state, False, 4, isMin=True
+        )
+        if new_game_state is None:
+            print("B won")
+            break
+        game_board.game_state = new_game_state
+        update_gui(window_surface, game_board)
+        pg.time.delay(TIME_DELAY)
+        game_board.game_state.generate_new_random_tile()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
+    running = True
     while running:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -82,16 +135,16 @@ def player_game_loop(
                     if event.key == pg.K_w:  # Forgive my repeated code
                         # Only make a new tile if some tile moved
                         if game.tilt(Direction.UP):
-                            game.generate_new_tile()
+                            game.generate_new_random_tile()
                     elif event.key == pg.K_s:
                         if game.tilt(Direction.DOWN):
-                            game.generate_new_tile()
+                            game.generate_new_random_tile()
                     elif event.key == pg.K_a:
                         if game.tilt(Direction.LEFT):
-                            game.generate_new_tile()
+                            game.generate_new_random_tile()
                     elif event.key == pg.K_d:
                         if game.tilt(Direction.RIGHT):
-                            game.generate_new_tile()
+                            game.generate_new_random_tile()
 
                     game_over = game.is_game_over()
 
@@ -122,7 +175,7 @@ def main() -> None:
     manager = gui.UIManager(WINDOW_DIMS)
 
     # player_game_loop(window_surface, background, manager)
-    run_game(random_play, random_play, window_surface)
+    run_minimax(window_surface)
 
     pg.quit()
 
