@@ -2,7 +2,8 @@ from game import TwentyFortyEight, Direction
 # import pygame as pg
 # import pygame_gui as gui
 # from components.game_board import GameBoard
-from models import random_play
+from models import random_play, expectimax
+import random
 
 # Quickstart guide for Pygame GUI: https://pygame-gui.readthedocs.io/en/latest/quick_start.html#quick-start-guides
 WINDOW_WIDTH = 1280
@@ -13,7 +14,25 @@ CELL_SIZE = 150
 TIME_DELAY = 10
 
 
-def run_game(player_fn, adversary_fn, window_surface) -> None:
+def compute_direction(moves) -> Direction | None:
+    choice = random.random()
+    if (sum(moves) == 0):
+        return None
+    s = 0
+    for i in range(0, 4):
+        s += moves[i]
+        if choice < s:
+            match i:
+                case 0:
+                    return Direction.UP
+                case 1:
+                    return Direction.DOWN
+                case 2:
+                    return Direction.LEFT
+    return Direction.RIGHT
+
+
+def run_game(player_fn, player_options, adversary_fn, adversary_options, window_surface) -> None:
     game = TwentyFortyEight()
     # background = pg.Surface((800, 600))
     # background.fill(pg.Color("#000000"))
@@ -26,7 +45,7 @@ def run_game(player_fn, adversary_fn, window_surface) -> None:
         # pg.display.update()
         # pg.time.delay(TIME_DELAY)
 
-        move: Direction | None = player_fn(game, adversary_fn)
+        move: Direction | None = compute_direction(player_fn(game, player_options, adversary_fn, adversary_options))
         if move is None:
             print("B won")
             break
@@ -42,7 +61,7 @@ def run_game(player_fn, adversary_fn, window_surface) -> None:
             print("a")
             break
 
-        move: Direction | None = adversary_fn(game, player_fn)
+        move: Direction | None = compute_direction(adversary_fn(game, adversary_options, player_fn, player_options))
         if move is None:
             print("A won")
             break
@@ -123,7 +142,11 @@ def main() -> None:
 
     # player_game_loop(window_surface, background, manager)
     window_surface = 0
-    run_game(random_play, random_play, window_surface)
+    player_options = dict()
+    player_options["is_player"] = True
+    player_options["depth"] = 2
+    adversary_options = dict()
+    run_game(expectimax, player_options, random_play, adversary_options, window_surface)
 
     # pg.quit()
 
