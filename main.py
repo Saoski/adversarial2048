@@ -77,12 +77,11 @@ def run_minimax(window_surface) -> None:
     background.fill(pg.Color("#000000"))
     running = True
     while running:
-        print(str(game_board.game_state))
         update_gui(window_surface, game_board)
         pg.time.delay(TIME_DELAY)
 
         new_game_state: TwentyFortyEight | None = min_max_play(
-            game_board.game_state, False, 4, is_min=False
+            game_board.game_state, False, 6, is_min=False
         )
         if new_game_state is None:
             print("B won")
@@ -96,7 +95,7 @@ def run_minimax(window_surface) -> None:
             break
 
         new_game_state: TwentyFortyEight | None = min_max_play(
-            game_board.game_state, False, 4, is_min=False
+            game_board.game_state, False, 6, is_min=False
         )
         if new_game_state is None:
             print("B won")
