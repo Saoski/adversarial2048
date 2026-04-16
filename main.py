@@ -82,7 +82,7 @@ def run_minimax(window_surface) -> None:
         pg.time.delay(TIME_DELAY)
 
         new_game_state: TwentyFortyEight | None = min_max_play(
-            game_board.game_state, False, 4, isMin=False
+            game_board.game_state, False, 4, is_min=False
         )
         if new_game_state is None:
             print("B won")
@@ -96,7 +96,7 @@ def run_minimax(window_surface) -> None:
             break
 
         new_game_state: TwentyFortyEight | None = min_max_play(
-            game_board.game_state, False, 4, isMin=True
+            game_board.game_state, False, 4, is_min=False
         )
         if new_game_state is None:
             print("B won")
