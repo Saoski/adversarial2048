@@ -27,25 +27,35 @@ def random_play(game: TwentyFortyEight, other_fn: Callable) -> TwentyFortyEight 
 
 def min_max_play(
     game: TwentyFortyEight,
-    generate_tile: bool,
-    depth: int,
-    is_min: bool,
+    my_options: dict,
     alpha=-sys.maxsize,  # maxsize is the system's maximum integer value (probably 2**64 - 1)
     beta=sys.maxsize,
 ) -> TwentyFortyEight:
+    depth = my_options["depth"]
+    is_player_one: bool = my_options["is_player_one"]
+    is_min: bool = (
+        my_options["player_one_min"] if is_player_one else my_options["player_two_min"]
+    )
     if depth == 0:
         return game
     # Generate new configs tilted in each direction
     successors: list[TwentyFortyEight] = game.get_successors(ActionType.TILT)
     if len(successors) == 0:  # Game is already over
         return game
-    if generate_tile:
+    if not is_player_one:  # Player 2 has a tile generated after it
         # From each tilt successor, generate each possible new config with a generated tile
         best_config: TwentyFortyEight = successors[0]  # Keep track of best config
         best_score: int = -sys.maxsize if not is_min else sys.maxsize
         for successor in successors:
+            # successor_score: int = min_max_new_tile(
+            #     successor, depth - 1, not is_min, alpha, beta
+            # ).score
+            my_options["depth"] = depth - 1
             successor_score: int = min_max_new_tile(
-                successor, depth - 1, not is_min, alpha, beta
+                game=successor,
+                my_options=my_options,
+                alpha=alpha,
+                beta=beta,
             ).score
             if (is_min and successor_score < best_score) or (
                 not is_min and successor_score > best_score
@@ -61,12 +71,17 @@ def min_max_play(
             else:
                 alpha = max(alpha, best_score)
         return best_config
-    else:
-        best_score: int = -sys.maxsize if not is_min else sys.maxsize
+    else:  # Player one
+        best_score: int = sys.maxsize if is_min else -sys.maxsize
         best_config: TwentyFortyEight = successors[0]
         for successor in successors:
+            my_options["is_player_one"] = False
+            my_options["depth"] = depth - 1
             successor_score: int = min_max_play(
-                successor, not generate_tile, depth - 1, not is_min, alpha, beta
+                game=successor,
+                my_options=my_options,
+                alpha=alpha,
+                beta=beta,
             ).score
             if (is_min and successor_score < best_score) or (
                 not is_min and successor_score > best_score
@@ -86,11 +101,12 @@ def min_max_play(
 
 def min_max_new_tile(
     game: TwentyFortyEight,
-    depth: int,
-    is_min: bool,
+    my_options: dict,
     alpha=-sys.maxsize,
     beta=sys.maxsize,
 ) -> TwentyFortyEight:
+    depth = my_options["depth"]
+    is_min: bool = my_options["new_tile_min"]
     if depth == 0:
         return game
     # Generate new configs with all possible generated tiles
@@ -100,8 +116,9 @@ def min_max_new_tile(
     best_score: int = -sys.maxsize if not is_min else sys.maxsize
     best_config: TwentyFortyEight = successors[0]
     for successor in successors:
+        my_options["depth"] = depth - 1
         successor_score: int = min_max_play(
-            successor, False, depth - 1, not is_min, alpha, beta
+            game=successor, my_options=my_options, alpha=alpha, beta=beta
         ).score
         if (is_min and successor_score < best_score) or (
             not is_min and successor_score > best_score

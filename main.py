@@ -1,3 +1,5 @@
+from typing import Any
+
 from game import TwentyFortyEight, Direction
 import pygame as pg
 import pygame_gui as gui
@@ -74,18 +76,25 @@ def run_game(player_fn, adversary_fn, window_surface) -> None:
                 running = False
 
 
-def run_minimax(window_surface) -> None:
+def run_minimax(
+    window_surface, player_one_min: bool, player_two_min: bool, depth: int
+) -> None:
     game_board = GameBoard((325, 50), 150, TwentyFortyEight(), window_surface)
     background = pg.Surface((800, 600))
     background.fill(pg.Color("#000000"))
     running = True
+    my_options: dict[str, Any] = {
+        "player_one_min": player_one_min,
+        "player_two_min": player_two_min,
+    }
     while running:
         update_gui(window_surface, game_board)
         pg.time.delay(TIME_DELAY)
 
-        new_game_state: TwentyFortyEight | None = min_max_play(
-            game_board.game_state, False, 5, is_min=False
-        )
+        my_options["is_player_one"] = True
+        my_options["depth"] = depth
+        my_options["new_tile_min"] = not player_one_min
+        new_game_state = min_max_play(game=game_board.game_state, my_options=my_options)
         if new_game_state is None:
             print("B won")
             break
@@ -97,9 +106,10 @@ def run_minimax(window_surface) -> None:
             print("a")
             break
 
-        new_game_state: TwentyFortyEight | None = min_max_play(
-            game_board.game_state, True, 5, is_min=False
-        )
+        my_options["is_player_one"] = False
+        my_options["depth"] = depth
+        my_options["new_tile_min"] = not player_two_min
+        new_game_state = min_max_play(game=game_board.game_state, my_options=my_options)
         if new_game_state is None:
             print("B won")
             break
@@ -177,20 +187,22 @@ def pygame_main() -> None:
     manager = gui.UIManager(WINDOW_DIMS)
 
     # player_game_loop(window_surface, background, manager)
-    run_minimax(window_surface)
+    run_minimax(window_surface, player_one_min=False, player_two_min=False, depth=2)
 
     pg.quit()
 
 
 def main():
     for depth in range(1, 6):
+        print(f"Running sims for depth {depth}")
         player_1_min = False
         player_2_min = False
-        game_stats = run_min_max_simulations(100, depth, player_1_min, player_2_min)
+        game_stats = run_min_max_simulations(5, depth, player_1_min, player_2_min)
         df = pd.DataFrame([asdict(stats) for stats in game_stats])
-        df.to_csv(f"minimax_{player_1_min}_{player_2_min}_{depth}.csv")
+        print(df["score"].mean())
+        df.to_csv(f"data/minimax_{player_1_min}_{player_2_min}_{depth}.csv")
 
 
 if __name__ == "__main__":
-    main()
-    # pygame_main()
+    # main()
+    pygame_main()
