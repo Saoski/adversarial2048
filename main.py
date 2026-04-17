@@ -192,5 +192,5 @@ def main():
 
 
 if __name__ == "__main__":
-    # main()
-    pygame_main()
+    main()
+    # pygame_main()
