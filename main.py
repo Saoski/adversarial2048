@@ -3,6 +3,9 @@ import pygame as pg
 import pygame_gui as gui
 from components.game_board import GameBoard
 from models import random_play, min_max_play
+from simulations import run_min_max_simulations
+import pandas as pd
+from dataclasses import asdict
 
 # Quickstart guide for Pygame GUI: https://pygame-gui.readthedocs.io/en/latest/quick_start.html#quick-start-guides
 WINDOW_WIDTH = 1280
@@ -81,7 +84,7 @@ def run_minimax(window_surface) -> None:
         pg.time.delay(TIME_DELAY)
 
         new_game_state: TwentyFortyEight | None = min_max_play(
-            game_board.game_state, False, 6, is_min=False
+            game_board.game_state, False, 5, is_min=False
         )
         if new_game_state is None:
             print("B won")
@@ -95,7 +98,7 @@ def run_minimax(window_surface) -> None:
             break
 
         new_game_state: TwentyFortyEight | None = min_max_play(
-            game_board.game_state, False, 6, is_min=False
+            game_board.game_state, True, 5, is_min=False
         )
         if new_game_state is None:
             print("B won")
@@ -163,7 +166,7 @@ def player_game_loop(
         pg.display.update()
 
 
-def main() -> None:
+def pygame_main() -> None:
     pg.init()
 
     window_surface = pg.display.set_mode(WINDOW_DIMS)
@@ -179,5 +182,15 @@ def main() -> None:
     pg.quit()
 
 
+def main():
+    for depth in range(1, 6):
+        player_1_min = False
+        player_2_min = False
+        game_stats = run_min_max_simulations(100, depth, player_1_min, player_2_min)
+        df = pd.DataFrame([asdict(stats) for stats in game_stats])
+        df.to_csv(f"minimax_{player_1_min}_{player_2_min}_{depth}.csv")
+
+
 if __name__ == "__main__":
-    main()
+    # main()
+    pygame_main()

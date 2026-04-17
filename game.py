@@ -26,11 +26,13 @@ class TwentyFortyEight:
             copied_state = deepcopy(copy)
             self.board: list[list[int]] = copied_state.board
             self.score: int = copied_state.score
+            self.turns_taken = copied_state.turns_taken
         else:
             self.board: list[list[int]] = [
                 [0] * self.BOARD_SIZE for _ in range(self.BOARD_SIZE)
             ]
             self.score: int = 0
+            self.turns_taken = 0
             # Generate two tiles
             self.generate_new_random_tile()
             self.generate_new_random_tile()
@@ -116,7 +118,7 @@ class TwentyFortyEight:
                     for col in reversed(range(self.BOARD_SIZE)):
                         if self._slide_block(row, col, direction, already_merged):
                             cell_moved = True
-
+        self.turns_taken += 1
         return cell_moved
 
     def can_tilt(self, direction: Direction) -> bool:
@@ -130,9 +132,11 @@ class TwentyFortyEight:
         """
         self.saved_board = deepcopy(self.board)
         previous_score = self.score
+        previous_moves = self.turns_taken
         can_tilt: bool = self.tilt(direction)
         self.board = self.saved_board
         self.score = previous_score
+        self.turns_taken = previous_moves
         return can_tilt
 
     def is_game_over(self) -> bool:

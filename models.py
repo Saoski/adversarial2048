@@ -41,10 +41,8 @@ def min_max_play(
         return game
     if generate_tile:
         # From each tilt successor, generate each possible new config with a generated tile
-        best_score: int = sys.maxsize
-        best_config: TwentyFortyEight = successors[0]
-        if not is_min:
-            best_score *= -1
+        best_config: TwentyFortyEight = successors[0]  # Keep track of best config
+        best_score: int = -sys.maxsize if not is_min else sys.maxsize
         for successor in successors:
             successor_score: int = min_max_new_tile(
                 successor, depth - 1, not is_min, alpha, beta
@@ -56,7 +54,7 @@ def min_max_play(
                 best_config = successor
             # Check for pruning
             if (is_min and best_score <= alpha) or (not is_min and best_score >= beta):
-                return successor
+                return best_config
             # Update beta or alpha values
             if is_min:
                 beta = min(beta, best_score)
@@ -64,10 +62,8 @@ def min_max_play(
                 alpha = max(alpha, best_score)
         return best_config
     else:
-        best_score: int = sys.maxsize
+        best_score: int = -sys.maxsize if not is_min else sys.maxsize
         best_config: TwentyFortyEight = successors[0]
-        if not is_min:
-            best_score *= -1
         for successor in successors:
             successor_score: int = min_max_play(
                 successor, not generate_tile, depth - 1, not is_min, alpha, beta
@@ -79,7 +75,7 @@ def min_max_play(
                 best_config = successor
             # Check for pruning
             if (is_min and best_score <= alpha) or (not is_min and best_score >= beta):
-                return successor
+                return best_config
             # Update beta or alpha values
             if is_min:
                 beta = min(beta, best_score)
@@ -101,10 +97,8 @@ def min_max_new_tile(
     successors: list[TwentyFortyEight] = game.get_successors(ActionType.NEW_TILE)
     if len(successors) == 0:  # Game is already over
         return game
-    best_score: int = sys.maxsize
+    best_score: int = -sys.maxsize if not is_min else sys.maxsize
     best_config: TwentyFortyEight = successors[0]
-    if not is_min:
-        best_score *= -1
     for successor in successors:
         successor_score: int = min_max_play(
             successor, False, depth - 1, not is_min, alpha, beta
@@ -116,7 +110,7 @@ def min_max_new_tile(
             best_config = successor
         # Check for pruning
         if (is_min and best_score <= alpha) or (not is_min and best_score >= beta):
-            return successor
+            return best_config
         # Update beta or alpha values
         if is_min:
             beta = min(beta, best_score)
