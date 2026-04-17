@@ -4,7 +4,7 @@ from random import choice
 import sys
 
 
-def random_play(game: TwentyFortyEight, other_fn: Callable) -> TwentyFortyEight | None:
+def random_play(game: TwentyFortyEight, my_options) -> TwentyFortyEight:
     """Returns a new copied game state moved in a random valid direction
 
     Args:
@@ -18,7 +18,7 @@ def random_play(game: TwentyFortyEight, other_fn: Callable) -> TwentyFortyEight 
     choices = [direction for direction in Direction if game.can_tilt(direction)]
     tilt_dir: Direction | None = choice(choices) if len(choices) != 0 else None
     if tilt_dir is None:
-        return None
+        return game
     else:
         copy = TwentyFortyEight(game)
         copy.tilt(tilt_dir)
@@ -47,9 +47,6 @@ def min_max_play(
         best_config: TwentyFortyEight = successors[0]  # Keep track of best config
         best_score: int = -sys.maxsize if not is_min else sys.maxsize
         for successor in successors:
-            # successor_score: int = min_max_new_tile(
-            #     successor, depth - 1, not is_min, alpha, beta
-            # ).score
             my_options["depth"] = depth - 1
             successor_score: int = min_max_new_tile(
                 game=successor,
@@ -117,6 +114,7 @@ def min_max_new_tile(
     best_config: TwentyFortyEight = successors[0]
     for successor in successors:
         my_options["depth"] = depth - 1
+        my_options["is_player_one"] = True
         successor_score: int = min_max_play(
             game=successor, my_options=my_options, alpha=alpha, beta=beta
         ).score

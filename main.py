@@ -187,22 +187,22 @@ def pygame_main() -> None:
     manager = gui.UIManager(WINDOW_DIMS)
 
     # player_game_loop(window_surface, background, manager)
-    run_minimax(window_surface, player_one_min=False, player_two_min=False, depth=2)
+    run_minimax(window_surface, player_one_min=False, player_two_min=False, depth=4)
 
     pg.quit()
 
 
 def main():
-    for depth in range(1, 6):
+    for depth in range(1, 2):
         print(f"Running sims for depth {depth}")
         player_1_min = False
-        player_2_min = False
-        game_stats = run_min_max_simulations(5, depth, player_1_min, player_2_min)
+        player_2_min = True
+        game_stats = run_min_max_simulations(100, 4, player_1_min, player_2_min)
         df = pd.DataFrame([asdict(stats) for stats in game_stats])
         print(df["score"].mean())
-        df.to_csv(f"data/minimax_{player_1_min}_{player_2_min}_{depth}.csv")
+        df.to_csv(f"data/max_vs_random_depth_4.csv")
 
 
 if __name__ == "__main__":
-    # main()
-    pygame_main()
+    main()
+    # pygame_main()

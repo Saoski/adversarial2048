@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from game import TwentyFortyEight
-from models import min_max_play
+from models import min_max_play, random_play
 from time import perf_counter
 from typing import Any
 
@@ -42,7 +42,7 @@ def run_min_max_sim(
         my_options["is_player_one"] = False
         my_options["depth"] = depth
         my_options["new_tile_min"] = not player_two_min
-        game_state = min_max_play(game=game_state, my_options=my_options)
+        game_state = random_play(game=game_state, my_options=my_options)
 
         game_state.generate_new_random_tile()
         if game_state.is_game_over():
