@@ -187,7 +187,7 @@ def pygame_main() -> None:
     manager = gui.UIManager(WINDOW_DIMS)
 
     # player_game_loop(window_surface, background, manager)
-    run_minimax(window_surface, player_one_min=False, player_two_min=False, depth=4)
+    run_minimax(window_surface, player_one_min=False, player_two_min=True, depth=5)
 
     pg.quit()
 
@@ -204,5 +204,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-    # pygame_main()
+    # main()
+    pygame_main()

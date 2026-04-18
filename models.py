@@ -1,5 +1,4 @@
 from game import TwentyFortyEight, Direction, ActionType
-from collections.abc import Callable
 from random import choice
 import sys
 
