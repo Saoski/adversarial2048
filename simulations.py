@@ -13,22 +13,22 @@ class GameStats:
     largest_tile: int
 
 
-def run_min_max_simulations(
-    count: int, depth: int, player_1_min: bool, player_2_min: bool
+def run_min_max_vs_random_sims(
+    count: int, depth: int, minimax_first: bool
 ) -> list[GameStats]:
     results = []
     for i in range(count):
-        results.append(run_min_max_sim(depth, player_1_min, player_2_min))
+        results.append(run_min_max_vs_random_sim(depth, minimax_first))
         print(f"Done {i}")
     return results
 
 
-def run_min_max_sim(
-    depth: int, player_one_min: bool, player_two_min: bool
-) -> GameStats:
+def run_min_max_vs_random_sim(depth: int, minimax_first: bool) -> GameStats:
     game_state: TwentyFortyEight = TwentyFortyEight()
     running: bool = True
     start_time = perf_counter()
+    player_one_min: bool = not minimax_first
+    player_two_min: bool = minimax_first
     my_options: dict[str, Any] = {
         "player_one_min": player_one_min,
         "player_two_min": player_two_min,
