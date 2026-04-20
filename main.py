@@ -203,7 +203,7 @@ def pygame_main() -> None:
 def main():
     simulation_count = 200
     for depth in range(1, 7):
-        for minimax_first in (True, False):
+        for minimax_first in [False]:
             print(f"Running sims for depth {depth} and minimax first: {minimax_first}")
             game_stats = run_min_max_vs_random_sims(
                 simulation_count, depth, minimax_first

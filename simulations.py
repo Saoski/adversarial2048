@@ -37,12 +37,18 @@ def run_min_max_vs_random_sim(depth: int, minimax_first: bool) -> GameStats:
         my_options["is_player_one"] = True
         my_options["depth"] = depth
         my_options["new_tile_min"] = not player_one_min
-        game_state, _ = min_max_play(game=game_state, my_options=my_options)
+        if minimax_first:
+            game_state, _ = min_max_play(game=game_state, my_options=my_options)
+        else:
+            game_state = random_play(game=game_state, my_options=my_options)
 
         my_options["is_player_one"] = False
         my_options["depth"] = depth
         my_options["new_tile_min"] = not player_two_min
-        game_state = random_play(game=game_state, my_options=my_options)
+        if minimax_first:
+            game_state = random_play(game=game_state, my_options=my_options)
+        else:
+            game_state, _ = min_max_play(game=game_state, my_options=my_options)
 
         game_state.generate_new_random_tile()
         if game_state.is_game_over():
