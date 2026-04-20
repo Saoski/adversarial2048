@@ -30,7 +30,7 @@ def min_max_play(
     my_options: dict,
     alpha: int = -sys.maxsize,
     beta: int = sys.maxsize,
-) -> TwentyFortyEight:
+) -> tuple[TwentyFortyEight, int]:
     """Generates a new board state where a move was made using the minimax algorithm
 
     Args:
@@ -52,65 +52,49 @@ def min_max_play(
         my_options["player_one_min"] if is_player_one else my_options["player_two_min"]
     )
     if depth == 0:
-        return game
+        return game, game.score
     # Generate new configs tilted in each direction
     successors: list[TwentyFortyEight] = game.get_successors(ActionType.TILT)
     if len(successors) == 0:  # Game is already over
-        return game
-    if not is_player_one:  # Player 2 has a tile generated after it
-        # From each tilt successor, generate each possible new config with a generated tile
-        best_config: TwentyFortyEight = successors[0]  # Keep track of best config
-        # If we are minimizing, set the best score so far to a really big number
-        best_score: int = sys.maxsize if is_min else -sys.maxsize
-        for successor in successors:
-            # Decrement depth
-            my_options["depth"] = depth - 1
-            successor_score: int = min_max_new_tile(
-                game=successor,
-                my_options=my_options,
-                alpha=alpha,
-                beta=beta,
-            ).score
-            if (is_min and successor_score < best_score) or (
-                not is_min and successor_score > best_score
-            ):
-                best_score = successor_score
-                best_config = successor
-            # Check for pruning
-            if (is_min and best_score <= alpha) or (not is_min and best_score >= beta):
-                return best_config
-            # Update beta or alpha values
-            if is_min:
-                beta = min(beta, best_score)
-            else:
-                alpha = max(alpha, best_score)
-        return best_config
-    else:  # Player one
-        best_score: int = sys.maxsize if is_min else -sys.maxsize
-        best_config: TwentyFortyEight = successors[0]
-        for successor in successors:
+        return game, game.score
+    best_config: TwentyFortyEight = successors[0]  # Keep track of best config
+    # If we are minimizing, set the best score so far to a really big number
+    best_score: int = sys.maxsize if is_min else -sys.maxsize
+    for successor in successors:
+        # Decrement depth
+        my_options["depth"] = depth - 1
+        if is_player_one:
             my_options["is_player_one"] = False
-            my_options["depth"] = depth - 1
-            successor_score: int = min_max_play(
+            _, successor_score = min_max_play(
                 game=successor,
                 my_options=my_options,
                 alpha=alpha,
                 beta=beta,
-            ).score
-            if (is_min and successor_score < best_score) or (
-                not is_min and successor_score > best_score
-            ):
-                best_score = successor_score
-                best_config = successor
-            # Check for pruning
-            if (is_min and best_score <= alpha) or (not is_min and best_score >= beta):
-                return best_config
-            # Update beta or alpha values
-            if is_min:
-                beta = min(beta, best_score)
-            else:
-                alpha = max(alpha, best_score)
-        return best_config
+            )
+        else:  # player 2
+            _, successor_score = min_max_new_tile(
+                game=successor,
+                my_options=my_options,
+                alpha=alpha,
+                beta=beta,
+            )
+        if (is_min and successor_score < best_score) or (
+            not is_min and successor_score > best_score
+        ):
+            if depth == 8:
+                print(is_player_one, is_min)
+                print(f"Got a better score of {successor_score}")
+            best_score = successor_score
+            best_config = successor
+        # Check for pruning
+        if (is_min and best_score <= alpha) or (not is_min and best_score >= beta):
+            return best_config, best_score
+        # Update beta or alpha values
+        if is_min:
+            beta = min(beta, best_score)
+        else:
+            alpha = max(alpha, best_score)
+    return best_config, best_score
 
 
 def min_max_new_tile(
@@ -118,7 +102,7 @@ def min_max_new_tile(
     my_options: dict,
     alpha: int = -sys.maxsize,
     beta: int = sys.maxsize,
-) -> TwentyFortyEight:
+) -> tuple[TwentyFortyEight, int]:
     """Generates a new board state where a new tile was generated using the minimax algorithm
 
     Args:
@@ -135,20 +119,20 @@ def min_max_new_tile(
     depth = my_options["depth"]
     is_min: bool = my_options["new_tile_min"]
     if depth == 0:
-        return game
+        return game, game.score
     # Generate new configs with all possible generated tiles
     successors: list[TwentyFortyEight] = game.get_successors(ActionType.NEW_TILE)
     if len(successors) == 0:  # Game is already over
-        return game
+        return game, game.score
     # If we are minimizing, set the best score so far to a really big number
     best_score: int = sys.maxsize if is_min else -sys.maxsize
-    best_config: TwentyFortyEight = successors[0] # keep track of best config
+    best_config: TwentyFortyEight = successors[0]  # keep track of best config
     for successor in successors:
-        my_options["depth"] = depth - 1 # Decrement depth
+        my_options["depth"] = depth - 1  # Decrement depth
         my_options["is_player_one"] = True
-        successor_score: int = min_max_play(
+        _, successor_score = min_max_play(
             game=successor, my_options=my_options, alpha=alpha, beta=beta
-        ).score
+        )
         if (is_min and successor_score < best_score) or (
             not is_min and successor_score > best_score
         ):
@@ -156,10 +140,10 @@ def min_max_new_tile(
             best_config = successor
         # Check for pruning
         if (is_min and best_score <= alpha) or (not is_min and best_score >= beta):
-            return best_config
+            return best_config, best_score
         # Update beta or alpha values
         if is_min:
             beta = min(beta, best_score)
         else:
             alpha = max(alpha, best_score)
-    return best_config
+    return best_config, best_score

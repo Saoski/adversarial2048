@@ -5,7 +5,7 @@ import pygame as pg
 import pygame_gui as gui
 from components.game_board import GameBoard
 from models import random_play, min_max_play
-from simulations import run_min_max_vs_random_sims, run_random_vs_random_sims
+from simulations import run_min_max_vs_random_sims, run_random_vs_random_sims, run_min_max_vs_min_max_sims
 import pandas as pd
 from dataclasses import asdict
 
@@ -94,7 +94,7 @@ def run_minimax(
         my_options["is_player_one"] = True
         my_options["depth"] = depth
         my_options["new_tile_min"] = not player_one_min
-        new_game_state = min_max_play(game=game_board.game_state, my_options=my_options)
+        new_game_state, _ = min_max_play(game=game_board.game_state, my_options=my_options)
         if new_game_state is None:
             print("B won")
             break
@@ -109,7 +109,7 @@ def run_minimax(
         my_options["is_player_one"] = False
         my_options["depth"] = depth
         my_options["new_tile_min"] = not player_two_min
-        new_game_state = min_max_play(game=game_board.game_state, my_options=my_options)
+        new_game_state, _ = min_max_play(game=game_board.game_state, my_options=my_options)
         if new_game_state is None:
             print("B won")
             break
@@ -187,17 +187,17 @@ def pygame_main() -> None:
     manager = gui.UIManager(WINDOW_DIMS)
 
     # player_game_loop(window_surface, background, manager)
-    run_minimax(window_surface, player_one_min=False, player_two_min=True, depth=5)
+    run_minimax(window_surface, player_one_min=False, player_two_min=False, depth=5)
 
     pg.quit()
 
 
 def main():
     simulation_count = 200
-    game_stats = run_random_vs_random_sims(simulation_count)
+    game_stats = run_min_max_vs_min_max_sims(10, 5, False, False)
     df = pd.DataFrame([asdict(stats) for stats in game_stats])
     print(df["score"].mean())
-    df.to_csv("data/random_vs_random.csv")
+    df.to_csv("data/test.csv")
 
 
 if __name__ == "__main__":
