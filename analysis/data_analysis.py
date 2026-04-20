@@ -4,40 +4,20 @@ from pandas import DataFrame
 
 
 def read_minimax_vs_random_data() -> DataFrame:
-    return pd.concat(
-        [
-            pd.read_csv(
-                f"data/minimax_vs_random_depth_{depth}_minimax_first-{minimax_first}"
-            )
-            for depth in range(1, 7)
-            for minimax_first in (True, False)
-        ],
-        keys=(
-            f"Depth: {depth}, Minimax first: {minimax_first}"
-            for depth in range(1, 7)
-            for minimax_first in (True, False)
-        ),
-    )
+    dfs: list[DataFrame] = []
+    for depth in range(1, 7):
+        df = pd.read_csv(
+            f"data/minimax_vs_random/minimax_vs_random_depth_{depth}_minimax_first-True.csv",
+            index_col=0,
+        )
+        df["depth"] = depth
+        dfs.append(df)
+    return pd.concat(dfs)
 
 
 def main():
-    bad_minimax_df = pd.read_csv("data/max_vs_random_depth_4.csv")
-    good_minimax_df = pd.read_csv(
-        "data/minimax_vs_random/minimax_vs_random_depth_4_minimax_first-True.csv"
-    )
-    random_df = pd.read_csv("data/random_vs_random.csv")
-    combined_df = pd.concat(
-        [bad_minimax_df, good_minimax_df, random_df],
-        keys=("bad minimax", "good minimax", "random"),
-        names=["algorithm"],
-    )
-
-    print(combined_df)
-    # minimax_df["score"].hist(alpha=0.5, label="Minimax", density=True)
-    # random_df["score"].hist(alpha=0.5, label="Random", density=True)
-    combined_df.boxplot(column="score", by="algorithm")
-
-    plt.show()
+    df: DataFrame = read_minimax_vs_random_data()
+    print(df.describe())
 
 
 if __name__ == "__main__":

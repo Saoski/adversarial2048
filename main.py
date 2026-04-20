@@ -211,7 +211,7 @@ def main():
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
             df.to_csv(
-                f"data/minimax_vs_random_depth_{depth}_minimax_first-{minimax_first}.csv"
+                f"data/minimax_vs_random/minimax_vs_random_depth_{depth}_minimax_first-{minimax_first}.csv"
             )
 
 
