@@ -24,12 +24,28 @@ def random_play(game: TwentyFortyEight, my_options) -> TwentyFortyEight:
         return copy
 
 
+# maxsize is the system's maximum integer value (probably 2**64 - 1)
 def min_max_play(
     game: TwentyFortyEight,
     my_options: dict,
-    alpha=-sys.maxsize,  # maxsize is the system's maximum integer value (probably 2**64 - 1)
-    beta=sys.maxsize,
+    alpha: int = -sys.maxsize,
+    beta: int = sys.maxsize,
 ) -> TwentyFortyEight:
+    """Generates a new board state where a move was made using the minimax algorithm
+
+    Args:
+        game (TwentyFortyEight): the current game state
+        my_options (dict): A dictionary containing the following keys: <br>
+            "depth": and integer that represents the current depth to search <br>
+            "is_player_one": true if making a decision for player one and false if making a decision for player two <br>
+            "plyer_one_min": true if player one is trying to minimize the score and false if trying to maximize the score <br>
+            "plyer_two_min": true if player two is trying to minimize the score and false if trying to maximize the score <br>
+        alpha (int, optional): the alpha parameter for pruning. Defaults to -sys.maxsize.
+        beta (int, optional): the beta parameter for pruning. Defaults to sys.maxsize.
+
+    Returns:
+        TwentyFortyEight: a new board state where a move was made using the minimax algorithm
+    """
     depth = my_options["depth"]
     is_player_one: bool = my_options["is_player_one"]
     is_min: bool = (
@@ -44,8 +60,10 @@ def min_max_play(
     if not is_player_one:  # Player 2 has a tile generated after it
         # From each tilt successor, generate each possible new config with a generated tile
         best_config: TwentyFortyEight = successors[0]  # Keep track of best config
-        best_score: int = -sys.maxsize if not is_min else sys.maxsize
+        # If we are minimizing, set the best score so far to a really big number
+        best_score: int = sys.maxsize if is_min else -sys.maxsize
         for successor in successors:
+            # Decrement depth
             my_options["depth"] = depth - 1
             successor_score: int = min_max_new_tile(
                 game=successor,
@@ -98,9 +116,22 @@ def min_max_play(
 def min_max_new_tile(
     game: TwentyFortyEight,
     my_options: dict,
-    alpha=-sys.maxsize,
-    beta=sys.maxsize,
+    alpha: int = -sys.maxsize,
+    beta: int = sys.maxsize,
 ) -> TwentyFortyEight:
+    """Generates a new board state where a new tile was generated using the minimax algorithm
+
+    Args:
+        game (TwentyFortyEight): the current game state
+        my_options (dict): A dictionary containing the following keys: <br>
+            "depth": and integer that represents the current depth to search <br>
+            "new_tile_min": true if the new tile generated is trying to minimize the score and false if trying to maximize the score <br>
+        alpha (int, optional): the alpha parameter for pruning. Defaults to -sys.maxsize.
+        beta (int, optional): the beta parameter for pruning. Defaults to sys.maxsize.
+
+    Returns:
+        TwentyFortyEight: _description_
+    """
     depth = my_options["depth"]
     is_min: bool = my_options["new_tile_min"]
     if depth == 0:
@@ -109,10 +140,11 @@ def min_max_new_tile(
     successors: list[TwentyFortyEight] = game.get_successors(ActionType.NEW_TILE)
     if len(successors) == 0:  # Game is already over
         return game
-    best_score: int = -sys.maxsize if not is_min else sys.maxsize
-    best_config: TwentyFortyEight = successors[0]
+    # If we are minimizing, set the best score so far to a really big number
+    best_score: int = sys.maxsize if is_min else -sys.maxsize
+    best_config: TwentyFortyEight = successors[0] # keep track of best config
     for successor in successors:
-        my_options["depth"] = depth - 1
+        my_options["depth"] = depth - 1 # Decrement depth
         my_options["is_player_one"] = True
         successor_score: int = min_max_play(
             game=successor, my_options=my_options, alpha=alpha, beta=beta
