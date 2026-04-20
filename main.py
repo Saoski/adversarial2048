@@ -5,7 +5,7 @@ import pygame as pg
 import pygame_gui as gui
 from components.game_board import GameBoard
 from models import random_play, min_max_play
-from simulations import run_min_max_vs_random_sims
+from simulations import run_min_max_vs_random_sims, run_random_vs_random_sims
 import pandas as pd
 from dataclasses import asdict
 
@@ -194,17 +194,10 @@ def pygame_main() -> None:
 
 def main():
     simulation_count = 200
-    for depth in range(1, 7):
-        for minimax_first in (True, False):
-            print(f"Running sims for depth {depth} and minimax first: {minimax_first}")
-            game_stats = run_min_max_vs_random_sims(
-                simulation_count, depth, minimax_first
-            )
-            df = pd.DataFrame([asdict(stats) for stats in game_stats])
-            print(df["score"].mean())
-            df.to_csv(
-                f"data/minimax_vs_random_depth_{depth}_minimax_first-{minimax_first}.csv"
-            )
+    game_stats = run_random_vs_random_sims(simulation_count)
+    df = pd.DataFrame([asdict(stats) for stats in game_stats])
+    print(df["score"].mean())
+    df.to_csv("data/random_vs_random.csv")
 
 
 if __name__ == "__main__":

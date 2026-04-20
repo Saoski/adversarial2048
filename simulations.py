@@ -23,6 +23,14 @@ def run_min_max_vs_random_sims(
     return results
 
 
+def run_random_vs_random_sims(count: int):
+    results = []
+    for i in range(count):
+        results.append(run_random_vs_random_sim())
+        print(f"Done {i}")
+    return results
+
+
 def run_min_max_vs_random_sim(depth: int, minimax_first: bool) -> GameStats:
     game_state: TwentyFortyEight = TwentyFortyEight()
     running: bool = True
@@ -43,6 +51,25 @@ def run_min_max_vs_random_sim(depth: int, minimax_first: bool) -> GameStats:
         my_options["depth"] = depth
         my_options["new_tile_min"] = not player_two_min
         game_state = random_play(game=game_state, my_options=my_options)
+
+        game_state.generate_new_random_tile()
+        if game_state.is_game_over():
+            break
+    end_time = perf_counter()
+    largest_tile = max([max(row) for row in game_state.board])
+    return GameStats(
+        game_state.score, game_state.turns_taken, end_time - start_time, largest_tile
+    )
+
+
+def run_random_vs_random_sim() -> GameStats:
+    game_state: TwentyFortyEight = TwentyFortyEight()
+    running: bool = True
+    start_time = perf_counter()
+    while running:
+        game_state = random_play(game=game_state, my_options=None)
+
+        game_state = random_play(game=game_state, my_options=None)
 
         game_state.generate_new_random_tile()
         if game_state.is_game_over():
