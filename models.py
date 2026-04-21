@@ -432,3 +432,63 @@ def expectimax_helper_adversary_new_tile(game, depth) -> float:
             num += 1
 
     return sum / num
+
+# Returns the direction of the move with the best results from averaging random simulations starting from a certain move
+def monte_carlo_play(
+        game: TwentyFortyEight,
+        options: dict,
+        other_fn: Callable,
+        other_options: dict,
+) -> TwentyFortyEight:
+    depth = options["depth"]
+    rollouts = options["rollouts"]
+    is_player_1 = options["is_player"]
+    moves = game.get_successors(ActionType.TILT)
+    if moves == []:
+        return None
+    best_move: TwentyFortyEight
+    best_move_score: int = -1 if is_player_1 else 10000000000
+    for move in moves:
+        rollout_total = 0
+        for _ in range(rollouts):
+            rollout_total += rollout(TwentyFortyEight(move), depth, is_player_1)
+        rollout_avg = rollout_total/rollouts
+        if is_player_1:
+            if rollout_avg > best_move_score:
+                best_move_score = rollout_avg
+                best_move = move
+    return reverse_engineer_direction_array(game, best_move)
+
+# Plays randomly from a certain move
+def rollout(
+        game: TwentyFortyEight,
+        depth: int,
+        is_player_1: bool
+) -> int:
+    if is_player_1:
+        choices = []
+        for d in Direction:
+            if game.can_tilt(d):
+                choices.append(d)
+        if choices == []:
+            return game.score
+        game.tilt(random.choice(choices))
+    game.generate_new_random_tile()
+    while depth > 0 and not game.is_game_over():
+        choices = []
+        for d in Direction:
+            if game.can_tilt(d):
+                choices.append(d)
+        if choices == []:
+            break
+        game.tilt(random.choice(choices))
+        choices = []
+        for d in Direction:
+            if game.can_tilt(d):
+                choices.append(d)
+        if choices == []:
+            break
+        game.tilt(random.choice(choices))
+        game.generate_new_random_tile()
+        depth -= 1
+    return game.score
