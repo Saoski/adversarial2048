@@ -3,6 +3,11 @@ from enum import Enum
 from copy import deepcopy
 
 
+class ActionType(Enum):
+    TILT = "tilt"
+    NEW_TILE = "new tile"
+
+
 class Direction(Enum):
     """Represents a move direction on the board"""
 
@@ -16,15 +21,22 @@ class TwentyFortyEight:
     BOARD_SIZE = 4
     NEW_FOUR_PROBABILITY = 0.1  # 10% chance of generating a 4 instead of a 2
 
-    def __init__(self):
-        self.board: list[list[int]] = [
-            [0] * self.BOARD_SIZE for _ in range(self.BOARD_SIZE)
-        ]
-        self.score = 0
-        self.turns_taken = 0
-        # Generate two tiles
-        self.generate_new_tile()
-        self.generate_new_tile()
+    def __init__(self, copy: "None | TwentyFortyEight" = None):
+        if copy is not None:
+            copied_state = deepcopy(copy)
+            self.board: list[list[int]] = copied_state.board
+            self.score: int = copied_state.score
+            self.turns_taken = copied_state.turns_taken
+        else:
+            self.board: list[list[int]] = [
+                [0] * self.BOARD_SIZE for _ in range(self.BOARD_SIZE)
+            ]
+            self.score: int = 0
+            self.turns_taken = 0
+            # Generate two tiles
+            self.generate_new_tile()
+            self.generate_new_tile()
+        self.saved_board: list[list[int]] = []  # A copy of the board for convenience
 
     def save_copy(self):
         return (deepcopy(self.board), self.score, self.turns_taken)
@@ -48,6 +60,34 @@ class TwentyFortyEight:
             self.board[random_coord[0]][random_coord[1]] = 4
         else:
             self.board[random_coord[0]][random_coord[1]] = 2
+
+    def get_successors(self, action_type: ActionType) -> list["TwentyFortyEight"]:
+        successors: list[TwentyFortyEight] = []
+        match action_type:
+            # Get all possible configs with a new tile generated
+            case ActionType.NEW_TILE:
+                empty_coords: list[tuple[int, int]] = []  # A list of empty coordinates
+                for row in range(self.BOARD_SIZE):
+                    for col in range(self.BOARD_SIZE):
+                        if self.board[row][col] == 0:
+                            empty_coords.append((row, col))
+                for coord in empty_coords:
+                    row = coord[0]
+                    col = coord[1]
+                    new_config_2 = TwentyFortyEight(self)  # Create copy with new 2 tile
+                    new_config_2.board[row][col] = 2
+                    successors.append(new_config_2)
+                    new_config_4 = TwentyFortyEight(self)  # Create copy with new 4 tile
+                    new_config_4.board[row][col] = 4
+                    successors.append(new_config_4)
+            # Get all possible tilted configs
+            case ActionType.TILT:
+                for direction in Direction:
+                    if self.can_tilt(direction):
+                        new_config = TwentyFortyEight(self)  # Create copy
+                        new_config.tilt(direction)
+                        successors.append(new_config)
+        return successors
 
     def tilt(self, direction: Direction) -> bool:
         """tilts the board in the given collection, handling collisions and merges accordingly
@@ -86,7 +126,6 @@ class TwentyFortyEight:
                     for col in reversed(range(self.BOARD_SIZE)):
                         if self._slide_block(row, col, direction, already_merged):
                             cell_moved = True
-
         self.turns_taken += 1
         return cell_moved
 
