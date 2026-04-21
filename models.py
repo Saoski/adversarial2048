@@ -445,7 +445,7 @@ def monte_carlo(
     is_player_1 = options["is_player"]
     moves = game.get_successors(ActionType.TILT)
     if moves == []:
-        return None
+        return [0.0,0.0,0.0,0.0]
     best_move: TwentyFortyEight
     best_move_score: int = -1 if is_player_1 else 10000000000
     for move in moves:
@@ -470,29 +470,20 @@ def rollout(
         is_player_1: bool
 ) -> int:
     if is_player_1:
-        choices = []
-        for d in Direction:
-            if game.can_tilt(d):
-                choices.append(d)
-        if choices == []:
+        tilt_dir = compute_direction(random_play(game, None, None, None))
+        if tilt_dir is None:
             return game.score
-        game.tilt(random.choice(choices))
-    game.generate_new_random_tile()
-    while depth > 0 and not game.is_game_over():
-        choices = []
-        for d in Direction:
-            if game.can_tilt(d):
-                choices.append(d)
-        if choices == []:
+        game.tilt(tilt_dir)
+    game.generate_new_tile()
+    while depth > 0:
+        tilt_dir = compute_direction(random_play(game, None, None, None))
+        if tilt_dir is None:
             break
-        game.tilt(random.choice(choices))
-        choices = []
-        for d in Direction:
-            if game.can_tilt(d):
-                choices.append(d)
-        if choices == []:
+        game.tilt(tilt_dir)
+        tilt_dir = compute_direction(random_play(game, None, None, None))
+        if tilt_dir is None:
             break
-        game.tilt(random.choice(choices))
-        game.generate_new_random_tile()
-        depth -= 1
+        game.tilt(tilt_dir)
+        game.generate_new_tile()
+        depth -= 2
     return game.score
