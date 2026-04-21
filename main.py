@@ -254,7 +254,7 @@ def main() -> None:
         if os.path.exists(path):
             print(f"Found data for {path}")
         else:
-            print(f"Running minimax sims for depth {depth}")
+            print(f"Running sims for {path}")
             game_stats = run_minimax_vs_random(simulation_count, depth)
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
