@@ -2,8 +2,11 @@ from game import TwentyFortyEight, Direction
 # import pygame as pg
 # import pygame_gui as gui
 # from components.game_board import GameBoard
-from models import random_play, expectimax
-import random
+from models import random_play, expectimax, compute_direction
+from simulations import *
+import pandas as pd
+from dataclasses import asdict
+import os
 
 # Quickstart guide for Pygame GUI: https://pygame-gui.readthedocs.io/en/latest/quick_start.html#quick-start-guides
 WINDOW_WIDTH = 1280
@@ -12,24 +15,6 @@ WINDOW_DIMS = (WINDOW_WIDTH, WINDOW_HEIGHT)
 TARGET_FRAME_RATE = 60
 CELL_SIZE = 150
 TIME_DELAY = 10
-
-
-def compute_direction(moves) -> Direction | None:
-    choice = random.random()
-    if (sum(moves) == 0):
-        return None
-    s = 0
-    for i in range(0, 4):
-        s += moves[i]
-        if choice < s:
-            match i:
-                case 0:
-                    return Direction.UP
-                case 1:
-                    return Direction.DOWN
-                case 2:
-                    return Direction.LEFT
-    return Direction.RIGHT
 
 
 def run_game(player_fn, player_options, adversary_fn, adversary_options, window_surface) -> None:
@@ -141,16 +126,30 @@ def main() -> None:
     # manager = gui.UIManager(WINDOW_DIMS)
 
     # player_game_loop(window_surface, background, manager)
-    window_surface = 0
-    player_options = dict()
-    player_options["is_player"] = True
-    player_options["depth"] = 4
-    adversary_options = dict()
-    adversary_options["is_player"] = False
-    adversary_options["depth"] = 4
-    run_game(expectimax, player_options, expectimax, adversary_options, window_surface)
+    # window_surface = 0
+    # player_options = dict()
+    # player_options["is_player"] = True
+    # player_options["depth"] = 3
+    # adversary_options = dict()
+    # adversary_options["is_player"] = False
+    # adversary_options["depth"] = 3
+    # run_game(expectimax, player_options, expectimax, adversary_options, window_surface)
 
     # pg.quit()
+
+    simulation_count = 10
+    for depth in range(1, 7):
+        path = f"data/expectimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for depth {depth} simulations {simulation_count}")
+            continue
+        print(f"Running sims for depth {depth}")
+        game_stats = run_expectimax_vs_random(
+            simulation_count, depth
+        )
+        df = pd.DataFrame([asdict(stats) for stats in game_stats])
+        print(df["score"].mean())
+        df.to_csv(path)
 
 
 if __name__ == "__main__":

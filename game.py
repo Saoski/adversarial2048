@@ -21,9 +21,18 @@ class TwentyFortyEight:
             [0] * self.BOARD_SIZE for _ in range(self.BOARD_SIZE)
         ]
         self.score = 0
+        self.turns_taken = 0
         # Generate two tiles
         self.generate_new_tile()
         self.generate_new_tile()
+
+    def save_copy(self):
+        return (deepcopy(self.board), self.score, self.turns_taken)
+
+    def load_copy(self, copy):
+        self.board = copy[0]
+        self.score = copy[1]
+        self.turns_taken = copy[2]
 
     def generate_new_tile(self) -> None:
         """Randomly add a new tile with a value of 2 or 4 (random)"""
@@ -78,6 +87,7 @@ class TwentyFortyEight:
                         if self._slide_block(row, col, direction, already_merged):
                             cell_moved = True
 
+        self.turns_taken += 1
         return cell_moved
 
     def can_tilt(self, direction: Direction) -> bool:
@@ -89,11 +99,9 @@ class TwentyFortyEight:
         Returns:
             bool: True if the board can be tilted in the given direction and False otherwise
         """
-        saved_board = deepcopy(self.board)
-        previous_score = self.score
+        copy = self.save_copy()
         can_tilt: bool = self.tilt(direction)
-        self.board = saved_board
-        self.score = previous_score
+        self.load_copy(copy)
         return can_tilt
 
     def is_game_over(self) -> bool:

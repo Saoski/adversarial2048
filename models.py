@@ -1,6 +1,24 @@
 from game import TwentyFortyEight, Direction
 from collections.abc import Callable
 from copy import deepcopy
+import random
+
+def compute_direction(moves) -> Direction | None:
+    choice = random.random()
+    if (sum(moves) == 0):
+        return None
+    s = 0
+    for i in range(0, 4):
+        s += moves[i]
+        if choice < s:
+            match i:
+                case 0:
+                    return Direction.UP
+                case 1:
+                    return Direction.DOWN
+                case 2:
+                    return Direction.LEFT
+    return Direction.RIGHT
 
 
 def random_play(game: TwentyFortyEight, my_options, other_fn: Callable, other_options) -> [float, float, float, float]:
@@ -57,48 +75,40 @@ def expectimax_helper_player(game, depth) -> ([float, float, float, float], int)
     dir = [0, 0, 0, 0]
     # up
     if game.can_tilt(Direction.UP):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.UP)
         s = expectimax_helper_player_adversary(game, depth - 1)
         if score <= s:
             dir = [1, 0, 0, 0]
             score = s
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
     # down
     if game.can_tilt(Direction.DOWN):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.DOWN)
         s = expectimax_helper_player_adversary(game, depth - 1)
         if score <= s:
             dir = [0, 1, 0, 0]
             score = s
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
     # left
     if game.can_tilt(Direction.LEFT):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.LEFT)
         s = expectimax_helper_player_adversary(game, depth - 1)
         if score <= s:
             dir = [0, 0, 1, 0]
             score = s
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
     # right
     if game.can_tilt(Direction.RIGHT):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.RIGHT)
         s = expectimax_helper_player_adversary(game, depth - 1)
         if score <= s:
             dir = [0, 0, 0, 1]
             score = s
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
     return (dir, score)
 
 # is_player = True, adversary's turn, returns average score of all adversary moves
@@ -108,36 +118,28 @@ def expectimax_helper_player_adversary(game, depth) -> int:
     sum = 0
     num = 0
     if game.can_tilt(Direction.UP):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.UP)
         sum += expectimax_helper_player_new_tile(game, depth - 1)
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
         num += 1
     if game.can_tilt(Direction.DOWN):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.DOWN)
         sum += expectimax_helper_player_new_tile(game, depth - 1)
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
         num += 1
     if game.can_tilt(Direction.LEFT):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.LEFT)
         sum += expectimax_helper_player_new_tile(game, depth - 1)
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
         num += 1
     if game.can_tilt(Direction.RIGHT):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.RIGHT)
         sum += expectimax_helper_player_new_tile(game, depth - 1)
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
         num += 1
     return sum/num
 
@@ -152,22 +154,18 @@ def expectimax_helper_player_new_tile(game, depth) -> int:
             if game.board[i][j] != 0:
                 continue
             # 2 generated
-            saved_board = deepcopy(game.board)
-            previous_score = game.score
+            copy = game.save_copy()
             game.board[i][j] = 2
             (_, score) = expectimax_helper_player(game, depth - 1)
             sum += score
-            game.board = saved_board
-            game.score = previous_score
+            game.load_copy(copy)
             num += 1
             # 4 generated
-            saved_board = deepcopy(game.board)
-            previous_score = game.score
+            copy = game.save_copy()
             game.board[i][j] = 4
             (_, score) = expectimax_helper_player(game, depth - 1)
             sum += score
-            game.board = saved_board
-            game.score = previous_score
+            game.load_copy(copy)
             num += 1
 
     return sum/num
@@ -181,48 +179,40 @@ def expectimax_helper_adversary(game, depth) -> ([float, float, float, float], i
     dir = [0, 0, 0, 0]
     # up
     if game.can_tilt(Direction.UP):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.UP)
         s = expectimax_helper_adversary_new_tile(game, depth - 1)
         if score >= s:
             dir = [1, 0, 0, 0]
             score = s
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
     # down
     if game.can_tilt(Direction.DOWN):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.DOWN)
         s = expectimax_helper_adversary_new_tile(game, depth - 1)
         if score >= s:
             dir = [0, 1, 0, 0]
             score = s
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
     # left
     if game.can_tilt(Direction.LEFT):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.LEFT)
         s = expectimax_helper_adversary_new_tile(game, depth - 1)
         if score >= s:
             dir = [0, 0, 1, 0]
             score = s
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
     # right
     if game.can_tilt(Direction.RIGHT):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.RIGHT)
         s = expectimax_helper_adversary_new_tile(game, depth - 1)
         if score >= s:
             dir = [0, 0, 0, 1]
             score = s
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
     return (dir, score)
 
 # is_player = False, players's turn, returns average score of all player moves
@@ -232,40 +222,32 @@ def expectimax_helper_adversary_player(game, depth) -> int:
     sum = 0
     num = 0
     if game.can_tilt(Direction.UP):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.UP)
         (_, score) = expectimax_helper_adversary(game, depth - 1)
         sum += score
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
         num += 1
     if game.can_tilt(Direction.DOWN):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.DOWN)
         (_, score) = expectimax_helper_adversary(game, depth - 1)
         sum += score
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
         num += 1
     if game.can_tilt(Direction.LEFT):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.LEFT)
         (_, score) = expectimax_helper_adversary(game, depth - 1)
         sum += score
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
         num += 1
     if game.can_tilt(Direction.RIGHT):
-        saved_board = deepcopy(game.board)
-        previous_score = game.score
+        copy = game.save_copy()
         game.tilt(Direction.RIGHT)
         (_, score) = expectimax_helper_adversary(game, depth - 1)
         sum += score
-        game.board = saved_board
-        game.score = previous_score
+        game.load_copy(copy)
         num += 1
     return sum/num
 
@@ -280,20 +262,16 @@ def expectimax_helper_adversary_new_tile(game, depth) -> int:
             if game.board[i][j] != 0:
                 continue
             # 2 generated
-            saved_board = deepcopy(game.board)
-            previous_score = game.score
+            copy = game.save_copy()
             game.board[i][j] = 2
             sum += expectimax_helper_adversary_player(game, depth - 1)
-            game.board = saved_board
-            game.score = previous_score
+            game.load_copy(copy)
             num += 1
             # 4 generated
-            saved_board = deepcopy(game.board)
-            previous_score = game.score
+            copy = game.save_copy()
             game.board[i][j] = 4
             sum += expectimax_helper_adversary_player(game, depth - 1)
-            game.board = saved_board
-            game.score = previous_score
+            game.load_copy(copy)
             num += 1
 
     return sum/num
