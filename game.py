@@ -34,11 +34,19 @@ class TwentyFortyEight:
             self.score: int = 0
             self.turns_taken = 0
             # Generate two tiles
-            self.generate_new_random_tile()
-            self.generate_new_random_tile()
+            self.generate_new_tile()
+            self.generate_new_tile()
         self.saved_board: list[list[int]] = []  # A copy of the board for convenience
 
-    def generate_new_random_tile(self) -> None:
+    def save_copy(self):
+        return (deepcopy(self.board), self.score, self.turns_taken)
+
+    def load_copy(self, copy):
+        self.board = copy[0]
+        self.score = copy[1]
+        self.turns_taken = copy[2]
+
+    def generate_new_tile(self) -> None:
         """Randomly add a new tile with a value of 2 or 4 (random)"""
         empty_coords: list[tuple[int, int]] = []  # A list of empty coordinates
         for row in range(self.BOARD_SIZE):
@@ -130,13 +138,9 @@ class TwentyFortyEight:
         Returns:
             bool: True if the board can be tilted in the given direction and False otherwise
         """
-        self.saved_board = deepcopy(self.board)
-        previous_score = self.score
-        previous_moves = self.turns_taken
+        copy = self.save_copy()
         can_tilt: bool = self.tilt(direction)
-        self.board = self.saved_board
-        self.score = previous_score
-        self.turns_taken = previous_moves
+        self.load_copy(copy)
         return can_tilt
 
     def is_game_over(self) -> bool:

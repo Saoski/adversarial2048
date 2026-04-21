@@ -4,14 +4,11 @@ from game import TwentyFortyEight, Direction
 import pygame as pg
 import pygame_gui as gui
 from components.game_board import GameBoard
-from models import random_play, min_max_play
-from simulations import (
-    run_min_max_vs_random_sims,
-    run_random_vs_random_sims,
-    run_min_max_vs_min_max_sims,
-)
+from models import random_play, expectimax, compute_direction
+from simulations import *
 import pandas as pd
 from dataclasses import asdict
+import os
 
 # Quickstart guide for Pygame GUI: https://pygame-gui.readthedocs.io/en/latest/quick_start.html#quick-start-guides
 WINDOW_WIDTH = 1280
@@ -31,7 +28,7 @@ def update_gui(window_surface: pg.Surface, game_board: GameBoard) -> None:
     pg.display.update()
 
 
-def run_game(player_fn, adversary_fn, window_surface) -> None:
+def run_game(player_fn, player_options, adversary_fn, adversary_options, window_surface) -> None:
     game = TwentyFortyEight()
     background = pg.Surface((800, 600))
     background.fill(pg.Color("#000000"))
@@ -44,23 +41,23 @@ def run_game(player_fn, adversary_fn, window_surface) -> None:
         pg.display.update()
         pg.time.delay(TIME_DELAY)
 
-        move: Direction | None = player_fn(game, adversary_fn)
+        move: Direction | None = compute_direction(player_fn(game, player_options, adversary_fn, adversary_options))
         if move is None:
             print("B won")
             break
         game.tilt(move)
         print("Player: ", move)
 
-        window_surface.blit(background, (0, 0))
-        game_board.update()
-        game_board.draw()
-        pg.display.update()
-        pg.time.delay(TIME_DELAY)
+        # window_surface.blit(background, (0, 0))
+        # game_board.update()
+        # game_board.draw()
+        # pg.display.update()
+        # pg.time.delay(TIME_DELAY)
         if game.is_game_over():
             print("a")
             break
 
-        move: Direction | None = adversary_fn(game, player_fn)
+        move: Direction | None = compute_direction(adversary_fn(game, adversary_options, player_fn, player_options))
         if move is None:
             print("A won")
             break
@@ -71,13 +68,13 @@ def run_game(player_fn, adversary_fn, window_surface) -> None:
         game_board.draw()
         pg.display.update()
         pg.time.delay(TIME_DELAY)
-        game.generate_new_random_tile()
+        game.generate_new_tile()
     running = True
     print(str(game))
-    while running:
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                running = False
+    # while running:
+        # for event in pg.event.get():
+        #     if event.type == pg.QUIT:
+        #         running = False
 
 
 def run_minimax(
@@ -124,7 +121,7 @@ def run_minimax(
         game_board.game_state = new_game_state
         update_gui(window_surface, game_board)
         pg.time.delay(TIME_DELAY)
-        game_board.game_state.generate_new_random_tile()
+        game_board.game_state.generate_new_tile()
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
@@ -155,36 +152,37 @@ def player_game_loop(
                     if event.key == pg.K_w:  # Forgive my repeated code
                         # Only make a new tile if some tile moved
                         if game.tilt(Direction.UP):
-                            game.generate_new_random_tile()
+                            game.generate_new_tile()
                     elif event.key == pg.K_s:
                         if game.tilt(Direction.DOWN):
-                            game.generate_new_random_tile()
+                            game.generate_new_tile()
                     elif event.key == pg.K_a:
                         if game.tilt(Direction.LEFT):
-                            game.generate_new_random_tile()
+                            game.generate_new_tile()
                     elif event.key == pg.K_d:
                         if game.tilt(Direction.RIGHT):
-                            game.generate_new_random_tile()
+                            game.generate_new_tile()
 
-                    game_over = game.is_game_over()
+#                     game_over = game.is_game_over()
 
-            # Pass events to UI elements
-            manager.process_events(event)
+#             # Pass events to UI elements
+#             manager.process_events(event)
 
-        # update what element is currently hovered
-        manager.update(time_delta)
+#         # update what element is currently hovered
+#         manager.update(time_delta)
 
-        # fill the screen with a color to wipe away anything from last frame
-        window_surface.blit(background, (0, 0))
-        manager.draw_ui(window_surface)
+#         # fill the screen with a color to wipe away anything from last frame
+#         window_surface.blit(background, (0, 0))
+#         manager.draw_ui(window_surface)
 
-        game_board.update()
-        game_board.draw()
+#         game_board.update()
+#         game_board.draw()
 
-        pg.display.update()
+#         pg.display.update()
 
 
 def pygame_main() -> None:
+    pg.init()
     pg.init()
 
     window_surface = pg.display.set_mode(WINDOW_DIMS)
@@ -194,27 +192,78 @@ def pygame_main() -> None:
     # Manages update, draw and event handling functions of all the UI elements
     manager = gui.UIManager(WINDOW_DIMS)
 
-    # player_game_loop(window_surface, background, manager)
+    player_game_loop(window_surface, background, manager)
     run_minimax(window_surface, player_one_min=False, player_two_min=False, depth=5)
 
-    pg.quit()
+    # pg.quit()
+
+def expectimax_main() -> None:
+    simulation_count = 500
+    for depth in range(1, 6):
+        path = f"data/expectimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_expectimax_vs_random(
+                simulation_count, depth
+            )
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+
+        path = f"data/expectimax_vs_expectimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_expectimax_vs_expectimax(
+                simulation_count, depth
+            )
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+
+        path = f"data/random_vs_expectimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_random_vs_expectimax(
+                simulation_count, depth
+            )
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+
+        path = f"data/random_vs_random_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_random_vs_random(
+                simulation_count, depth
+            )
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
 
 
-def main():
+def minimax_main():
     simulation_count = 500
     for depth in range(1, 7):
         for minimax_first in [True]:
             print(f"Running sims for depth {depth} and minimax first: {minimax_first}")
-            game_stats = run_min_max_vs_random_sims(
-                simulation_count, depth, minimax_first
-            )
-            df = pd.DataFrame([asdict(stats) for stats in game_stats])
-            print(df["score"].mean())
-            df.to_csv(
-                f"data/minimax_vs_random/minimax_vs_random_depth_{depth}_minimax_first-True.csv"
-            )
+            # game_stats = run_min_max_vs_random_sims(
+            #     simulation_count, depth, minimax_first
+            # )
+            # df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            # print(df["score"].mean())
+            # df.to_csv(
+            #     f"data/minimax_vs_random/minimax_vs_random_depth_{depth}_minimax_first-True.csv"
+            # )
 
 
 if __name__ == "__main__":
-    main()
+    minimax_main()
     # pygame_main()

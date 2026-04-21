@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from game import TwentyFortyEight
+from game import TwentyFortyEight, Direction
 from models import min_max_play, random_play
+from models import random_play, expectimax, compute_direction
 from time import perf_counter
 from typing import Any
 
@@ -13,119 +14,81 @@ class GameStats:
     largest_tile: int
 
 
-def run_min_max_vs_random_sims(
-    count: int, depth: int, minimax_first: bool
+def run_expectimax_vs_random(count: int, depth: int) -> list[GameStats]:
+    player_fn = expectimax
+    player_options = dict()
+    player_options["is_player"] = True
+    player_options["depth"] = depth
+
+    adversary_fn = random_play
+    adversary_options = dict()
+
+    return simulate(player_fn, player_options, adversary_fn, adversary_options, count)
+
+
+def run_random_vs_random(count: int, depth: int) -> list[GameStats]:
+    player_fn = random_play
+    player_options = dict()
+
+    adversary_fn = random_play
+    adversary_options = dict()
+
+    return simulate(player_fn, player_options, adversary_fn, adversary_options, count)
+
+
+def run_random_vs_expectimax(count: int, depth: int) -> list[GameStats]:
+    player_fn = random_play
+    player_options = dict()
+
+    adversary_fn = expectimax
+    adversary_options = dict()
+    adversary_options["is_player"] = False
+    adversary_options["depth"] = depth
+
+    return simulate(player_fn, player_options, adversary_fn, adversary_options, count)
+
+
+def run_expectimax_vs_expectimax(count: int, depth: int) -> list[GameStats]:
+    player_fn = expectimax
+    player_options = dict()
+    player_options["is_player"] = True
+    player_options["depth"] = depth
+
+    adversary_fn = expectimax
+    adversary_options = dict()
+    adversary_options["is_player"] = False
+    adversary_options["depth"] = depth
+
+    return simulate(player_fn, player_options, adversary_fn, adversary_options, count)
+
+
+def simulate(
+    player_fn, player_options, adversary_fn, adversary_options, count
 ) -> list[GameStats]:
     results = []
     for i in range(count):
-        results.append(run_min_max_vs_random_sim(depth, minimax_first))
-        print(f"Done {i}")
-    return results
-
-
-def run_min_max_vs_random_sim(depth: int, minimax_first: bool) -> GameStats:
-    game_state: TwentyFortyEight = TwentyFortyEight()
-    running: bool = True
-    start_time = perf_counter()
-    player_one_min: bool = not minimax_first
-    player_two_min: bool = minimax_first
-    my_options: dict[str, Any] = {
-        "player_one_min": player_one_min,
-        "player_two_min": player_two_min,
-    }
-    while running:
-        my_options["is_player_one"] = True
-        my_options["depth"] = depth
-        my_options["new_tile_min"] = not player_one_min
-        if minimax_first:
-            game_state, _ = min_max_play(game=game_state, my_options=my_options)
-        else:
-            game_state = random_play(game=game_state, my_options=my_options)
-
-        my_options["is_player_one"] = False
-        my_options["depth"] = depth
-        my_options["new_tile_min"] = not player_two_min
-        if minimax_first:
-            game_state = random_play(game=game_state, my_options=my_options)
-        else:
-            game_state, _ = min_max_play(game=game_state, my_options=my_options)
-
-        game_state.generate_new_random_tile()
-        if game_state.is_game_over():
-            break
-    end_time = perf_counter()
-    largest_tile = max([max(row) for row in game_state.board])
-    return GameStats(
-        game_state.score, game_state.turns_taken, end_time - start_time, largest_tile
-    )
-
-
-def run_random_vs_random_sims(count: int):
-    results = []
-    for i in range(count):
-        results.append(run_random_vs_random_sim())
-        print(f"Done {i}")
-    return results
-
-
-def run_random_vs_random_sim() -> GameStats:
-    game_state: TwentyFortyEight = TwentyFortyEight()
-    running: bool = True
-    start_time = perf_counter()
-    while running:
-        game_state = random_play(game=game_state, my_options=None)
-
-        game_state = random_play(game=game_state, my_options=None)
-
-        game_state.generate_new_random_tile()
-        if game_state.is_game_over():
-            break
-    end_time = perf_counter()
-    largest_tile = max([max(row) for row in game_state.board])
-    return GameStats(
-        game_state.score, game_state.turns_taken, end_time - start_time, largest_tile
-    )
-
-
-def run_min_max_vs_min_max_sims(
-    count: int, depth: int, player_one_min: bool, player_two_min: bool
-) -> list[GameStats]:
-    results = []
-    for i in range(count):
+        game = TwentyFortyEight()
+        start_time = perf_counter()
+        while True:
+            move: Direction | None = compute_direction(
+                player_fn(game, player_options, adversary_fn, adversary_options)
+            )
+            if move is None:
+                break
+            game.tilt(move)
+            move: Direction | None = compute_direction(
+                adversary_fn(game, adversary_options, player_fn, player_options)
+            )
+            if move is None:
+                break
+            game.tilt(move)
+            if game.is_game_over():
+                break
+            game.generate_new_tile()
+        end_time = perf_counter()
+        largest_tile = max([max(row) for row in game.board])
         results.append(
-            run_min_max_vs_min_max_sim(depth, player_one_min, player_two_min)
+            GameStats(game.score, game.turns_taken, end_time - start_time, largest_tile)
         )
         print(f"Done {i}")
-        print(results)
     return results
-
-
-def run_min_max_vs_min_max_sim(
-    depth: int, player_one_min: bool, player_two_min: bool
-) -> GameStats:
-    game_state: TwentyFortyEight = TwentyFortyEight()
-    running: bool = True
-    start_time = perf_counter()
-    my_options: dict[str, Any] = {
-        "player_one_min": player_one_min,
-        "player_two_min": player_two_min,
-    }
-    while running:
-        my_options["is_player_one"] = True
-        my_options["depth"] = depth
-        my_options["new_tile_min"] = not player_one_min
-        game_state, _ = min_max_play(game=game_state, my_options=my_options)
-
-        my_options["is_player_one"] = False
-        my_options["depth"] = depth
-        my_options["new_tile_min"] = not player_two_min
-        game_state, _ = min_max_play(game=game_state, my_options=my_options)
-
-        game_state.generate_new_random_tile()
-        if game_state.is_game_over():
-            break
-    end_time = perf_counter()
-    largest_tile = max([max(row) for row in game_state.board])
-    return GameStats(
-        game_state.score, game_state.turns_taken, end_time - start_time, largest_tile
-    )
