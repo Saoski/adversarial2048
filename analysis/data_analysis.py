@@ -120,7 +120,7 @@ def make_cat_plots(
 ) -> None:
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
-    # Point plot with confidence intervalof scores
+    # Point plot with confidence interval of scores
     sns.pointplot(
         data=data,
         x=x,
@@ -132,11 +132,11 @@ def make_cat_plots(
     axes[0].set_title(f"{ci}% Confidence Interval")
 
     # Box plot
-    sns.boxplot(data=data, x=x, y=y, ax=axes[1], hue=x, palette="bright")
+    sns.boxplot(data=data, x=x, y=y, ax=axes[1], hue=x, palette="bright", legend=False)
     axes[1].set_title("Box Plot")
 
     # Violin plot
-    sns.violinplot(data=data, x=x, y=y, ax=axes[2], hue=x, palette="bright")
+    sns.violinplot(data=data, x=x, y=y, ax=axes[2], hue=x, palette="bright", legend=False)
     axes[2].set_title("Violin Plot")
 
     fig.suptitle(title, fontsize=16)
