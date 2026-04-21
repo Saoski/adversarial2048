@@ -249,12 +249,7 @@ def main() -> None:
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
             df.to_csv(path)
-    minimax_sims()
 
-
-def minimax_sims():
-    simulation_count = 500
-    for depth in range(1, 7):
         path = f"data/minimax_vs_random/minimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
         if os.path.exists(path):
             print(f"Found data for {path}")
