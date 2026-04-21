@@ -439,7 +439,7 @@ def monte_carlo(
         options: dict,
         other_fn: Callable,
         other_options: dict,
-) -> Direction:
+) -> list[float]:
     depth = options["depth"]
     rollouts = options["rollouts"]
     is_player_1 = options["is_player"]
