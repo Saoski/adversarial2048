@@ -203,7 +203,7 @@ def pygame_main() -> None:
 
 def main() -> None:
     simulation_count = 500
-    for depth in range(1, 100):
+    for depth in range(1, 7):
         path = f"data/expectimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
         if os.path.exists(path):
             print(f"Found data for {path}")
