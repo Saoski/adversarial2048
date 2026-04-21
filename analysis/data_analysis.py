@@ -66,6 +66,53 @@ def read_minimax_vs_adversary_data() -> DataFrame:
     big_df["depth"] = depth
     return big_df
 
+def read_monte_carlo_vs_adversary_data() -> DataFrame:
+    dfs: list[DataFrame] = []
+    depth = 5
+    rollout = 20
+    monte_carlo_depth = 12
+    simulations = 500
+
+    # Monte-carlo vs Minimax
+    path = f"../data/monte_carlo_vs_minimax_minimax_depth_{depth}_rollout_{rollout}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["adversary"] = "minimax"
+    df["monte_carlo_depth"] = monte_carlo_depth
+    df["rollout"] = rollout
+
+    dfs.append(df)
+
+    # Monte-carlo vs Expectimax
+    path = f"../data/monte_carlo_vs_expectimax_rollout_{rollout}_expectimax_depth_{depth}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["adversary"] = "minimax"
+    df["monte_carlo_depth"] = monte_carlo_depth
+    df["rollout"] = rollout
+
+    dfs.append(df)
+
+    return pd.concat(dfs)
+
+
+def read_monte_carlo_vs_random_data() -> DataFrame:
+    rollout = 20
+    monte_carlo_depth = 12
+    simulations = 500
+    path = f"../data/monte_carlo_vs_random_rollout_{rollout}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["monte_carlo_depth"] = monte_carlo_depth
+    df["rollout"] = rollout
+    return df
+
 
 def make_cat_plots(
     data: DataFrame, x: str, y: str, title: str, linestyles: str = "-", ci: float = 90
