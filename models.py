@@ -31,6 +31,8 @@ def random_play(game: TwentyFortyEight, my_options, other_fn: Callable, other_op
     Returns:
         Direction: the next direction to be taken or None if there are no possible moves
     """
+    if game.is_game_over():
+        return [0, 0, 0, 0]
     # up, down, left, right
     a = [0,0,0,0]
     num = 0

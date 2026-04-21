@@ -137,19 +137,55 @@ def main() -> None:
 
     # pg.quit()
 
-    simulation_count = 10
-    for depth in range(1, 7):
+    simulation_count = 500
+    for depth in range(1, 6):
         path = f"data/expectimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
         if os.path.exists(path):
-            print(f"Found data for depth {depth} simulations {simulation_count}")
-            continue
-        print(f"Running sims for depth {depth}")
-        game_stats = run_expectimax_vs_random(
-            simulation_count, depth
-        )
-        df = pd.DataFrame([asdict(stats) for stats in game_stats])
-        print(df["score"].mean())
-        df.to_csv(path)
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_expectimax_vs_random(
+                simulation_count, depth
+            )
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+
+        path = f"data/expectimax_vs_expectimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_expectimax_vs_expectimax(
+                simulation_count, depth
+            )
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+
+        path = f"data/random_vs_expectimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_random_vs_expectimax(
+                simulation_count, depth
+            )
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+
+        path = f"data/random_vs_random_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_random_vs_random(
+                simulation_count, depth
+            )
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
 
 
 if __name__ == "__main__":
