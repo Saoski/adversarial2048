@@ -4,6 +4,8 @@ from models import min_max_play, random_play
 from models import random_play, expectimax, compute_direction, monte_carlo
 from time import perf_counter
 from typing import Any
+from concurrent.futures import ProcessPoolExecutor
+from functools import partial
 
 
 @dataclass(slots=True)  # Reduce dict overhead
@@ -164,29 +166,35 @@ def simulate(
     player_fn, player_options, adversary_fn, adversary_options, count
 ) -> list[GameStats]:
     results = []
-    for i in range(count):
-        game = TwentyFortyEight()
-        start_time = perf_counter()
-        while True:
-            move: Direction | None = compute_direction(
-                player_fn(game, player_options, adversary_fn, adversary_options)
-            )
-            if move is None:
-                break
-            game.tilt(move)
-            move: Direction | None = compute_direction(
-                adversary_fn(game, adversary_options, player_fn, player_options)
-            )
-            if move is None:
-                break
-            game.tilt(move)
-            if game.is_game_over():
-                break
-            game.generate_new_tile()
-        end_time = perf_counter()
-        largest_tile = max([max(row) for row in game.board])
-        results.append(GameStats(
-            game.score, game.turns_taken, end_time - start_time, largest_tile
-        ))
-        print(f"Done #{i} | {(end_time - start_time):.2f}s | {game.turns_taken} turns | {(game.turns_taken/(end_time - start_time)):.2f} turns/sec")
+    func = partial(simulate_one, player_fn, player_options, adversary_fn, adversary_options)
+    with ProcessPoolExecutor() as executor:
+        results = list(executor.map(func, range(count)))
     return results
+
+def simulate_one(
+    player_fn, player_options, adversary_fn, adversary_options, _
+):
+    game = TwentyFortyEight()
+    start_time = perf_counter()
+    while True:
+        move: Direction | None = compute_direction(
+            player_fn(game, player_options, adversary_fn, adversary_options)
+        )
+        if move is None:
+            break
+        game.tilt(move)
+        move: Direction | None = compute_direction(
+            adversary_fn(game, adversary_options, player_fn, player_options)
+        )
+        if move is None:
+            break
+        game.tilt(move)
+        if game.is_game_over():
+            break
+        game.generate_new_tile()
+    end_time = perf_counter()
+    largest_tile = max([max(row) for row in game.board])
+    print(f"Done | {(end_time - start_time):.2f}s | {game.turns_taken} turns | {(game.turns_taken/(end_time - start_time)):.2f} turns/sec")
+    return GameStats(
+        game.score, game.turns_taken, end_time - start_time, largest_tile
+    )
