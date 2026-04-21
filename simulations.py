@@ -107,8 +107,8 @@ def simulate(
             game.generate_new_tile()
         end_time = perf_counter()
         largest_tile = max([max(row) for row in game.board])
-        results.append(
-            GameStats(game.score, game.turns_taken, end_time - start_time, largest_tile)
-        )
-        print(f"Done {i}")
+        results.append(GameStats(
+            game.score, game.turns_taken, end_time - start_time, largest_tile
+        ))
+        print(f"Done #{i} | {(end_time - start_time):.2f}s | {game.turns_taken} turns | {(game.turns_taken/(end_time - start_time)):.2f} turns/sec")
     return results
