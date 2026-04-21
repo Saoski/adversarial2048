@@ -257,24 +257,6 @@ def run_random_vs_monte_carlo(count: int, depth: int, rollout: int) -> list[Game
 
     return simulate(player_fn, player_options, adversary_fn, adversary_options, count)
 
-def run_monte_carlo_vs_monte_carlo(
-    count: int, depth: int, rollout: int
-) -> list[GameStats]:
-    player_fn = monte_carlo
-    player_options = dict()
-    player_options["is_player"] = True
-    player_options["depth"] = depth
-    player_options["rollouts"] = rollout
-
-    adversary_fn = monte_carlo
-    adversary_options = dict()
-    adversary_options["is_player"] = False
-    adversary_options["depth"] = depth
-    adversary_options["rollouts"] = rollout
-
-    return simulate(player_fn, player_options, adversary_fn, adversary_options, count)
-
-
 def simulate(
     player_fn, player_options, adversary_fn, adversary_options, count
 ) -> list[GameStats]:
