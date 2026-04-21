@@ -16,6 +16,54 @@ def read_minimax_vs_random_data() -> DataFrame:
         dfs.append(df)
     return pd.concat(dfs)
 
+def read_random_vs_adversary_data() -> DataFrame:
+    dfs: list[DataFrame] = []
+    depth = 5
+    rollout = 20
+    monte_carlo_depth = 12
+    simulations = 500
+
+    # Random vs random
+    path = f"../data/random_vs_random_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["adversary"] = "random"
+    dfs.append(df)
+
+    # Random vs minimax
+    path = f"../data/random_vs_minimax_depth_{depth}_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["adversary"] = "minimax"
+    dfs.append(df)
+
+    # Random vs expectimax
+    path = f"../data/random_vs_expectimax_depth_{depth}_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["adversary"] = "expectimax"
+    dfs.append(df)
+
+    # Random vs monte carlo
+    path = f"../data/random_vs_monte-carlo_rollout_{rollout}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["adversary"] = "monte_carlo"
+    df["monte_carlo_depth"] = monte_carlo_depth
+    df["rollout"] = rollout
+    dfs.append(df)
+
+    big_df = pd.concat(dfs)
+    big_df["depth"] = depth
+    return big_df
 
 def read_minimax_vs_adversary_data() -> DataFrame:
     dfs: list[DataFrame] = []
@@ -119,21 +167,71 @@ def make_cat_plots(
 ) -> None:
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
-    # Point plot with confidence interval
+    # Point plot with confidence interval of scores
     sns.pointplot(
-        data=data, x=x, y=y, ax=axes[0], errorbar=("ci", ci), linestyles=linestyles
+        data=data,
+        x=x,
+        y=y,
+        ax=axes[0],
+        errorbar=("ci", ci),
+        linestyles=linestyles,
     )
     axes[0].set_title(f"{ci}% Confidence Interval")
 
     # Box plot
-    sns.boxplot(data=data, x=x, y=y, ax=axes[1])
+    sns.boxplot(data=data, x=x, y=y, ax=axes[1], hue=x, palette="bright", legend=False)
     axes[1].set_title("Box Plot")
 
     # Violin plot
-    sns.violinplot(data=data, x=x, y=y, ax=axes[2])
+    sns.violinplot(data=data, x=x, y=y, ax=axes[2], hue=x, palette="bright", legend=False)
     axes[2].set_title("Violin Plot")
 
-    fig.suptitle(title, fontsize=16, y=1.02)
+    fig.suptitle(title, fontsize=16)
+    plt.tight_layout()
+    plt.show()
+
+
+def make_cat_plots_for_adversaries(
+    data: DataFrame, x: str, title: str, linestyles: str = "-", ci: float = 90
+) -> None:
+    fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+
+    # Point plot with confidence interval of scores
+    sns.pointplot(
+        data=data,
+        x=x,
+        y="score",
+        ax=axes[0, 0],
+        errorbar=("ci", ci),
+        linestyles=linestyles,
+        hue=x,
+        palette="bright",
+    )
+    axes[0, 0].set_title(f"{ci}% Confidence Interval for Average Score")
+
+    # Box plot of scores
+    sns.boxplot(data=data, x=x, y="score", ax=axes[0, 1], hue=x, palette="bright")
+    axes[0, 1].set_title("Box Plot of Score Distributions")
+
+    # Violin plot of scores
+    sns.violinplot(data=data, x=x, y="score", ax=axes[0, 2], hue=x, palette="bright")
+    axes[0, 2].set_title("Violin Plot of Score Distributions")
+
+    # Count plot of largest tiles
+    sns.countplot(data=data, x=x, hue="largest_tile", ax=axes[1, 0], palette="bright")
+    axes[1, 0].set_title("Largest Tile Counts vs Adversary")
+
+    # Box plot of turns taken
+    sns.boxplot(data=data, x=x, y="turns_taken", ax=axes[1, 1], hue=x, palette="bright")
+    axes[1, 1].set_title("Box Plot of Turns Taken Distributions")
+
+    # Violin plot of turns taken
+    sns.violinplot(
+        data=data, x=x, y="turns_taken", ax=axes[1, 2], hue=x, palette="bright"
+    )
+    axes[1, 2].set_title("Violin Plot of Turns Taken Distributions")
+
+    fig.suptitle(title, fontsize=16)
     plt.tight_layout()
     plt.show()
 
