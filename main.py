@@ -5,7 +5,13 @@ import pygame as pg
 import pygame_gui as gui
 from components.game_board import GameBoard
 from models import random_play, expectimax, compute_direction
-from simulations import *
+from simulations import (
+    run_minimax_vs_random,
+    run_expectimax_vs_expectimax,
+    run_expectimax_vs_random,
+    run_random_vs_expectimax,
+    run_random_vs_random,
+)
 import pandas as pd
 from dataclasses import asdict
 import os
@@ -28,7 +34,9 @@ def update_gui(window_surface: pg.Surface, game_board: GameBoard) -> None:
     pg.display.update()
 
 
-def run_game(player_fn, player_options, adversary_fn, adversary_options, window_surface) -> None:
+def run_game(
+    player_fn, player_options, adversary_fn, adversary_options, window_surface
+) -> None:
     game = TwentyFortyEight()
     background = pg.Surface((800, 600))
     background.fill(pg.Color("#000000"))
@@ -41,7 +49,9 @@ def run_game(player_fn, player_options, adversary_fn, adversary_options, window_
         pg.display.update()
         pg.time.delay(TIME_DELAY)
 
-        move: Direction | None = compute_direction(player_fn(game, player_options, adversary_fn, adversary_options))
+        move: Direction | None = compute_direction(
+            player_fn(game, player_options, adversary_fn, adversary_options)
+        )
         if move is None:
             print("B won")
             break
@@ -57,7 +67,9 @@ def run_game(player_fn, player_options, adversary_fn, adversary_options, window_
             print("a")
             break
 
-        move: Direction | None = compute_direction(adversary_fn(game, adversary_options, player_fn, player_options))
+        move: Direction | None = compute_direction(
+            adversary_fn(game, adversary_options, player_fn, player_options)
+        )
         if move is None:
             print("A won")
             break
@@ -72,9 +84,9 @@ def run_game(player_fn, player_options, adversary_fn, adversary_options, window_
     running = True
     print(str(game))
     # while running:
-        # for event in pg.event.get():
-        #     if event.type == pg.QUIT:
-        #         running = False
+    # for event in pg.event.get():
+    #     if event.type == pg.QUIT:
+    #         running = False
 
 
 # def run_minimax(
@@ -159,6 +171,7 @@ def player_game_loop(
                         if game.tilt(Direction.RIGHT):
                             game.generate_new_tile()
 
+
 #                     game_over = game.is_game_over()
 
 #             # Pass events to UI elements
@@ -193,17 +206,16 @@ def pygame_main() -> None:
 
     # pg.quit()
 
-def expectimax_main() -> None:
-    simulation_count = 20
+
+def main() -> None:
+    simulation_count = 500
     for depth in range(1, 6):
         path = f"data/expectimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
         if os.path.exists(path):
             print(f"Found data for {path}")
         else:
             print(f"Running sims for {path}")
-            game_stats = run_expectimax_vs_random(
-                simulation_count, depth
-            )
+            game_stats = run_expectimax_vs_random(simulation_count, depth)
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
             df.to_csv(path)
@@ -213,9 +225,7 @@ def expectimax_main() -> None:
             print(f"Found data for {path}")
         else:
             print(f"Running sims for {path}")
-            game_stats = run_expectimax_vs_expectimax(
-                simulation_count, depth
-            )
+            game_stats = run_expectimax_vs_expectimax(simulation_count, depth)
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
             df.to_csv(path)
@@ -225,9 +235,7 @@ def expectimax_main() -> None:
             print(f"Found data for {path}")
         else:
             print(f"Running sims for {path}")
-            game_stats = run_random_vs_expectimax(
-                simulation_count, depth
-            )
+            game_stats = run_random_vs_expectimax(simulation_count, depth)
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
             df.to_csv(path)
@@ -237,27 +245,27 @@ def expectimax_main() -> None:
             print(f"Found data for {path}")
         else:
             print(f"Running sims for {path}")
-            game_stats = run_random_vs_random(
-                simulation_count, depth
-            )
+            game_stats = run_random_vs_random(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+    minimax_sims()
+
+
+def minimax_sims():
+    simulation_count = 500
+    for depth in range(1, 7):
+        path = f"data/minimax_vs_random/minimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running minimax sims for depth {depth}")
+            game_stats = run_minimax_vs_random(simulation_count, depth)
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
             df.to_csv(path)
 
 
-def minimax_main():
-    simulation_count = 500
-    for depth in range(1, 2):
-        for minimax_first in [True]:
-            print(f"Running sims for depth {depth} and minimax first: {minimax_first}")
-            game_stats = run_minimax_vs_random(simulation_count, 3)
-            df = pd.DataFrame([asdict(stats) for stats in game_stats])
-            print(df["score"].mean())
-            df.to_csv(
-                f"data/minimax_vs_random/test.csv"
-            )
-
-
 if __name__ == "__main__":
-    minimax_main()
+    main()
     # pygame_main()
