@@ -1,11 +1,7 @@
 from dataclasses import dataclass
 from game import TwentyFortyEight, Direction
 from models import min_max_play, random_play
-<<<<<<< HEAD
-from models import random_play, expectimax, monte_carlo, compute_direction
-=======
 from models import random_play, expectimax, compute_direction, monte_carlo
->>>>>>> 3a72f97e2c84d92de421b35b0afb2ae14fac76b5
 from time import perf_counter
 from typing import Any
 from concurrent.futures import ProcessPoolExecutor
