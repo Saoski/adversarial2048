@@ -144,7 +144,7 @@ def main() -> None:
     window_surface = 0
     player_options = dict()
     player_options["is_player"] = True
-    player_options["depth"] = 2
+    player_options["depth"] = 3
     adversary_options = dict()
     run_game(expectimax, player_options, random_play, adversary_options, window_surface)
 

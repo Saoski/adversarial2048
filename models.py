@@ -60,7 +60,7 @@ def expectimax_helper_player(game, depth) -> ([float, float, float, float], int)
         saved_board = deepcopy(game.board)
         previous_score = game.score
         game.tilt(Direction.UP)
-        s = expectimax_helper_player_adversary(game, depth)
+        s = expectimax_helper_player_adversary(game, depth - 1)
         if score < s:
             dir = [1, 0, 0, 0]
             score = s
@@ -71,7 +71,7 @@ def expectimax_helper_player(game, depth) -> ([float, float, float, float], int)
         saved_board = deepcopy(game.board)
         previous_score = game.score
         game.tilt(Direction.DOWN)
-        s = expectimax_helper_player_adversary(game, depth)
+        s = expectimax_helper_player_adversary(game, depth - 1)
         if score < s:
             dir = [0, 1, 0, 0]
             score = s
@@ -82,7 +82,7 @@ def expectimax_helper_player(game, depth) -> ([float, float, float, float], int)
         saved_board = deepcopy(game.board)
         previous_score = game.score
         game.tilt(Direction.LEFT)
-        s = expectimax_helper_player_adversary(game, depth)
+        s = expectimax_helper_player_adversary(game, depth - 1)
         if score < s:
             dir = [0, 0, 1, 0]
             score = s
@@ -93,7 +93,7 @@ def expectimax_helper_player(game, depth) -> ([float, float, float, float], int)
         saved_board = deepcopy(game.board)
         previous_score = game.score
         game.tilt(Direction.RIGHT)
-        s = expectimax_helper_player_adversary(game, depth)
+        s = expectimax_helper_player_adversary(game, depth - 1)
         if score < s:
             dir = [0, 0, 0, 1]
             score = s
@@ -111,7 +111,7 @@ def expectimax_helper_player_adversary(game, depth) -> int:
         saved_board = deepcopy(game.board)
         previous_score = game.score
         game.tilt(Direction.UP)
-        sum += expectimax_helper_player_new_tile(game, depth)
+        sum += expectimax_helper_player_new_tile(game, depth - 1)
         game.board = saved_board
         game.score = previous_score
         num += 1
@@ -119,7 +119,7 @@ def expectimax_helper_player_adversary(game, depth) -> int:
         saved_board = deepcopy(game.board)
         previous_score = game.score
         game.tilt(Direction.DOWN)
-        sum += expectimax_helper_player_new_tile(game, depth)
+        sum += expectimax_helper_player_new_tile(game, depth - 1)
         game.board = saved_board
         game.score = previous_score
         num += 1
@@ -127,7 +127,7 @@ def expectimax_helper_player_adversary(game, depth) -> int:
         saved_board = deepcopy(game.board)
         previous_score = game.score
         game.tilt(Direction.LEFT)
-        sum += expectimax_helper_player_new_tile(game, depth)
+        sum += expectimax_helper_player_new_tile(game, depth - 1)
         game.board = saved_board
         game.score = previous_score
         num += 1
@@ -135,7 +135,7 @@ def expectimax_helper_player_adversary(game, depth) -> int:
         saved_board = deepcopy(game.board)
         previous_score = game.score
         game.tilt(Direction.RIGHT)
-        sum += expectimax_helper_player_new_tile(game, depth)
+        sum += expectimax_helper_player_new_tile(game, depth - 1)
         game.board = saved_board
         game.score = previous_score
         num += 1
