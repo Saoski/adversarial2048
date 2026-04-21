@@ -77,59 +77,55 @@ def run_game(player_fn, player_options, adversary_fn, adversary_options, window_
         #         running = False
 
 
-def run_minimax(
-    window_surface, player_one_min: bool, player_two_min: bool, depth: int
-) -> None:
-    game_board = GameBoard((325, 50), 150, TwentyFortyEight(), window_surface)
-    background = pg.Surface((800, 600))
-    background.fill(pg.Color("#000000"))
-    running = True
-    my_options: dict[str, Any] = {
-        "player_one_min": player_one_min,
-        "player_two_min": player_two_min,
-    }
-    while running:
-        update_gui(window_surface, game_board)
-        pg.time.delay(TIME_DELAY)
+# def run_minimax(
+#     window_surface, player_one_min: bool, player_two_min: bool, depth: int
+# ) -> None:
+#     game_board = GameBoard((325, 50), 150, TwentyFortyEight(), window_surface)
+#     background = pg.Surface((800, 600))
+#     background.fill(pg.Color("#000000"))
+#     running = True
+#     my_options: dict[str, Any] = {
+#         "player_one_min": player_one_min,
+#         "player_two_min": player_two_min,
+#     }
+#     while running:
+#         update_gui(window_surface, game_board)
+#         pg.time.delay(TIME_DELAY)
 
-        my_options["is_player_one"] = True
-        my_options["depth"] = depth
-        my_options["new_tile_min"] = not player_one_min
-        new_game_state, _ = min_max_play(
-            game=game_board.game_state, my_options=my_options
-        )
-        if new_game_state is None:
-            print("B won")
-            break
-        game_board.game_state = new_game_state
+#         my_options["is_player_one"] = True
+#         my_options["depth"] = depth
+#         my_options["new_tile_min"] = not player_one_min
+#         new_game_state, _ = helper(game=game_board.game_state, my_options=my_options)
+#         if new_game_state is None:
+#             print("B won")
+#             break
+#         game_board.game_state = new_game_state
 
-        update_gui(window_surface, game_board)
-        pg.time.delay(TIME_DELAY)
-        if game_board.game_state.is_game_over():
-            print("a")
-            break
+#         update_gui(window_surface, game_board)
+#         pg.time.delay(TIME_DELAY)
+#         if game_board.game_state.is_game_over():
+#             print("a")
+#             break
 
-        my_options["is_player_one"] = False
-        my_options["depth"] = depth
-        my_options["new_tile_min"] = not player_two_min
-        new_game_state, _ = min_max_play(
-            game=game_board.game_state, my_options=my_options
-        )
-        if new_game_state is None:
-            print("B won")
-            break
-        game_board.game_state = new_game_state
-        update_gui(window_surface, game_board)
-        pg.time.delay(TIME_DELAY)
-        game_board.game_state.generate_new_tile()
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                running = False
-    running = True
-    while running:
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                running = False
+#         my_options["is_player_one"] = False
+#         my_options["depth"] = depth
+#         my_options["new_tile_min"] = not player_two_min
+#         new_game_state, _ = helper(game=game_board.game_state, my_options=my_options)
+#         if new_game_state is None:
+#             print("B won")
+#             break
+#         game_board.game_state = new_game_state
+#         update_gui(window_surface, game_board)
+#         pg.time.delay(TIME_DELAY)
+#         game_board.game_state.generate_new_tile()
+#         for event in pg.event.get():
+#             if event.type == pg.QUIT:
+#                 running = False
+#     running = True
+#     while running:
+#         for event in pg.event.get():
+#             if event.type == pg.QUIT:
+#                 running = False
 
 
 def player_game_loop(
@@ -193,7 +189,7 @@ def pygame_main() -> None:
     manager = gui.UIManager(WINDOW_DIMS)
 
     player_game_loop(window_surface, background, manager)
-    run_minimax(window_surface, player_one_min=False, player_two_min=False, depth=5)
+    # run_minimax(window_surface, player_one_min=False, player_two_min=False, depth=5)
 
     # pg.quit()
 
@@ -251,19 +247,17 @@ def expectimax_main() -> None:
 
 def minimax_main():
     simulation_count = 500
-    for depth in range(1, 7):
+    for depth in range(1, 2):
         for minimax_first in [True]:
             print(f"Running sims for depth {depth} and minimax first: {minimax_first}")
-            # game_stats = run_min_max_vs_random_sims(
-            #     simulation_count, depth, minimax_first
-            # )
-            # df = pd.DataFrame([asdict(stats) for stats in game_stats])
-            # print(df["score"].mean())
-            # df.to_csv(
-            #     f"data/minimax_vs_random/minimax_vs_random_depth_{depth}_minimax_first-True.csv"
-            # )
+            game_stats = run_minimax_vs_random(simulation_count, 3)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(
+                f"data/minimax_vs_random/test.csv"
+            )
 
 
 if __name__ == "__main__":
-    expectimax_main()
+    minimax_main()
     # pygame_main()

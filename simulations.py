@@ -14,6 +14,26 @@ class GameStats:
     largest_tile: int
 
 
+def run_minimax_vs_random(count: int, depth: int) -> list[GameStats]:
+    player_options = {}
+    player_options["is_player_one"] = True
+    player_options["depth"] = depth
+    player_options["new_tile_min"] = False
+    player_options["player_one_min"] = False
+    player_options["player_two_min"] = True
+
+    adversary_fn = random_play
+    adversary_options = dict()
+
+    return simulate(
+        player_fn=min_max_play,
+        player_options=player_options,
+        adversary_fn=adversary_fn,
+        adversary_options=adversary_options,
+        count=count,
+    )
+
+
 def run_expectimax_vs_random(count: int, depth: int) -> list[GameStats]:
     player_fn = expectimax
     player_options = dict()

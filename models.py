@@ -7,12 +7,15 @@ from collections.abc import Callable
 from copy import deepcopy
 import random
 
-def random_play(game: TwentyFortyEight, my_options, other_fn: Callable, other_options) -> list[float]:
+
+def random_play(
+    game: TwentyFortyEight, my_options, other_fn: Callable, other_options
+) -> list[float]:
     """Returns a new copied game state moved in a random valid direction"""
     if game.is_game_over():
         return [0, 0, 0, 0]
     # up, down, left, right
-    a = [0,0,0,0]
+    a = [0, 0, 0, 0]
     num = 0
     if game.can_tilt(Direction.UP):
         a[0] = 1
@@ -26,17 +29,12 @@ def random_play(game: TwentyFortyEight, my_options, other_fn: Callable, other_op
     if game.can_tilt(Direction.RIGHT):
         a[3] = 1
         num += 1
-    return [
-        a[0] * 1/num,
-        a[1] * 1/num,
-        a[2] * 1/num,
-        a[3] * 1/num
-    ]
+    return [a[0] * 1 / num, a[1] * 1 / num, a[2] * 1 / num, a[3] * 1 / num]
 
 
 def compute_direction(moves) -> Direction | None:
     rand_num = random.random()
-    if (sum(moves) == 0):
+    if sum(moves) == 0:
         return None
     s = 0
     for i in range(0, 4):
@@ -52,13 +50,41 @@ def compute_direction(moves) -> Direction | None:
     return Direction.RIGHT
 
 
-# maxsize is the system's maximum integer value (probably 2**64 - 1)
+def reverse_engineer_direction_array(
+    old_state: TwentyFortyEight, new_state: TwentyFortyEight
+) -> list[float]:
+    if old_state.board == new_state.board:
+        return [0.0, 0.0, 0.0, 0.0]
+
+    directions = (Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT)
+    result: list[float] = [0.0, 0.0, 0.0, 0.0]
+    for i in range(4):
+        direction = directions[i]
+        if old_state.can_tilt(direction):
+            copy = TwentyFortyEight(old_state)
+            copy.tilt(direction)
+            if copy.board == new_state.board:
+                result[i] = 1.0
+                return result
+    raise Exception("THIS SHOULD NEVER BE REACHED")
+
+
 def min_max_play(
+    game: TwentyFortyEight, my_options, player_fn, other_options
+) -> list[float]:
+    next_game_state, _ = min_max_play_helper(
+        game=game, my_options=deepcopy(my_options)
+    )
+    return reverse_engineer_direction_array(game, next_game_state)
+
+
+# maxsize is the system's maximum integer value (probably 2**64 - 1)
+def min_max_play_helper(
     game: TwentyFortyEight,
     my_options: dict,
-    alpha: int = -sys.maxsize,
-    beta: int = sys.maxsize,
-) -> tuple[TwentyFortyEight, int]:
+    alpha: float = -sys.maxsize,
+    beta: float = sys.maxsize,
+) -> tuple[TwentyFortyEight, float]:
     """Generates a new board state where a move was made using the minimax algorithm
 
     Args:
@@ -87,20 +113,20 @@ def min_max_play(
         return game, game.score
     best_config: TwentyFortyEight = successors[0]  # Keep track of best config
     # If we are minimizing, set the best score so far to a really big number
-    best_score: int = sys.maxsize if is_min else -sys.maxsize
+    best_score: float = sys.maxsize if is_min else -sys.maxsize
     for successor in successors:
         # Decrement depth
         my_options["depth"] = depth - 1
         if is_player_one:
             my_options["is_player_one"] = False
-            _, successor_score = min_max_play(
+            _, successor_score = min_max_play_helper(
                 game=successor,
                 my_options=my_options,
                 alpha=alpha,
                 beta=beta,
             )
         else:  # player 2
-            _, successor_score = min_max_new_tile(
+            _, successor_score = min_max_new_tile_helper(
                 game=successor,
                 my_options=my_options,
                 alpha=alpha,
@@ -125,12 +151,12 @@ def min_max_play(
     return best_config, best_score
 
 
-def min_max_new_tile(
+def min_max_new_tile_helper(
     game: TwentyFortyEight,
     my_options: dict,
-    alpha: int = -sys.maxsize,
-    beta: int = sys.maxsize,
-) -> tuple[TwentyFortyEight, int]:
+    alpha: float = -sys.maxsize,
+    beta: float = sys.maxsize,
+) -> tuple[TwentyFortyEight, float]:
     """Generates a new board state where a new tile was generated using the minimax algorithm
 
     Args:
@@ -153,12 +179,12 @@ def min_max_new_tile(
     if len(successors) == 0:  # Game is already over
         return game, game.score
     # If we are minimizing, set the best score so far to a really big number
-    best_score: int = sys.maxsize if is_min else -sys.maxsize
+    best_score: float = float(sys.maxsize if is_min else -sys.maxsize)
     best_config: TwentyFortyEight = successors[0]  # keep track of best config
     for successor in successors:
         my_options["depth"] = depth - 1  # Decrement depth
         my_options["is_player_one"] = True
-        _, successor_score = min_max_play(
+        _, successor_score = min_max_play_helper(
             game=successor, my_options=my_options, alpha=alpha, beta=beta
         )
         if (is_min and successor_score < best_score) or (
@@ -176,7 +202,10 @@ def min_max_new_tile(
             alpha = max(alpha, best_score)
     return best_config, best_score
 
-def expectimax(game: TwentyFortyEight, my_options, other_fn: Callable, other_options) -> list[float]:
+
+def expectimax(
+    game: TwentyFortyEight, my_options, other_fn: Callable, other_options
+) -> list[float]:
     depth: int = my_options["depth"]
     is_player: bool = my_options["is_player"]
     saved_board = deepcopy(game.board)
@@ -190,19 +219,20 @@ def expectimax(game: TwentyFortyEight, my_options, other_fn: Callable, other_opt
     game.score = previous_score
     return out
 
+
 # is_player = True, players's turn
 def expectimax_helper_player(game, depth) -> tuple[list[float], float]:
     if depth <= 0 or game.is_game_over():
         return ([0, 0, 0, 0], game.score)
     score = 0
-    dir: list[float] = [0., 0., 0., 0.]
+    dir: list[float] = [0.0, 0.0, 0.0, 0.0]
     # up
     if game.can_tilt(Direction.UP):
         copy = game.save_copy()
         game.tilt(Direction.UP)
         s = expectimax_helper_player_adversary(game, depth - 1)
         if score <= s:
-            dir = [1., 0., 0., 0.]
+            dir = [1.0, 0.0, 0.0, 0.0]
             score = s
         game.load_copy(copy)
     # down
@@ -211,7 +241,7 @@ def expectimax_helper_player(game, depth) -> tuple[list[float], float]:
         game.tilt(Direction.DOWN)
         s = expectimax_helper_player_adversary(game, depth - 1)
         if score <= s:
-            dir = [0., 1., 0., 0.]
+            dir = [0.0, 1.0, 0.0, 0.0]
             score = s
         game.load_copy(copy)
     # left
@@ -220,7 +250,7 @@ def expectimax_helper_player(game, depth) -> tuple[list[float], float]:
         game.tilt(Direction.LEFT)
         s = expectimax_helper_player_adversary(game, depth - 1)
         if score <= s:
-            dir = [0., 0., 1., 0.]
+            dir = [0.0, 0.0, 1.0, 0.0]
             score = s
         game.load_copy(copy)
     # right
@@ -229,10 +259,11 @@ def expectimax_helper_player(game, depth) -> tuple[list[float], float]:
         game.tilt(Direction.RIGHT)
         s = expectimax_helper_player_adversary(game, depth - 1)
         if score <= s:
-            dir = [0., 0., 0., 1.]
+            dir = [0.0, 0.0, 0.0, 1.0]
             score = s
         game.load_copy(copy)
     return (dir, score)
+
 
 # is_player = True, adversary's turn, returns average score of all adversary moves
 def expectimax_helper_player_adversary(game, depth) -> float:
@@ -264,7 +295,8 @@ def expectimax_helper_player_adversary(game, depth) -> float:
         sum += expectimax_helper_player_new_tile(game, depth - 1)
         game.load_copy(copy)
         num += 1
-    return sum/num
+    return sum / num
+
 
 # is_player = True, new tile, returns average score of all new tile
 def expectimax_helper_player_new_tile(game, depth) -> float:
@@ -291,14 +323,14 @@ def expectimax_helper_player_new_tile(game, depth) -> float:
             game.load_copy(copy)
             num += 1
 
-    return sum/num
+    return sum / num
 
 
 # is_player = False, adversary's turn
 def expectimax_helper_adversary(game, depth) -> tuple[list[float], float]:
     if depth <= 0 or game.is_game_over():
         return ([0, 0, 0, 0], game.score)
-    score = float('inf')
+    score = float("inf")
     dir: list[float] = [0, 0, 0, 0]
     # up
     if game.can_tilt(Direction.UP):
@@ -338,6 +370,7 @@ def expectimax_helper_adversary(game, depth) -> tuple[list[float], float]:
         game.load_copy(copy)
     return (dir, score)
 
+
 # is_player = False, players's turn, returns average score of all player moves
 def expectimax_helper_adversary_player(game, depth) -> float:
     if depth <= 0 or game.is_game_over():
@@ -372,7 +405,8 @@ def expectimax_helper_adversary_player(game, depth) -> float:
         sum += score
         game.load_copy(copy)
         num += 1
-    return sum/num
+    return sum / num
+
 
 # is_player = False, new tile, returns average score of all new tile
 def expectimax_helper_adversary_new_tile(game, depth) -> float:
@@ -397,4 +431,4 @@ def expectimax_helper_adversary_new_tile(game, depth) -> float:
             game.load_copy(copy)
             num += 1
 
-    return sum/num
+    return sum / num
