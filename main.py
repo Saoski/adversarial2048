@@ -250,7 +250,7 @@ def main() -> None:
             print(df["score"].mean())
             df.to_csv(path)
 
-        path = f"data/minimax_vs_random/minimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
+        path = f"data/minimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
         if os.path.exists(path):
             print(f"Found data for {path}")
         else:
