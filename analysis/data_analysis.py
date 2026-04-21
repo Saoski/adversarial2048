@@ -84,14 +84,14 @@ def make_cat_plots(
     axes[0].set_title(f"{ci}% Confidence Interval")
 
     # Box plot
-    sns.boxplot(data=data, x=x, y=y, ax=axes[1])
+    sns.boxplot(data=data, x=x, y=y, ax=axes[1], hue=x, palette="bright")
     axes[1].set_title("Box Plot")
 
     # Violin plot
-    sns.violinplot(data=data, x=x, y=y, ax=axes[2])
+    sns.violinplot(data=data, x=x, y=y, ax=axes[2], hue=x, palette="bright")
     axes[2].set_title("Violin Plot")
 
-    fig.suptitle(title, fontsize=16, y=1.02)
+    fig.suptitle(title, fontsize=16)
     plt.tight_layout()
     plt.show()
 
@@ -109,15 +109,17 @@ def make_cat_plots_for_adversaries(
         ax=axes[0, 0],
         errorbar=("ci", ci),
         linestyles=linestyles,
+        hue=x,
+        palette="bright",
     )
     axes[0, 0].set_title(f"{ci}% Confidence Interval for Average Score")
 
     # Box plot of scores
-    sns.boxplot(data=data, x=x, y="score", ax=axes[0, 1])
+    sns.boxplot(data=data, x=x, y="score", ax=axes[0, 1], hue=x, palette="bright")
     axes[0, 1].set_title("Box Plot of Score Distributions")
 
     # Violin plot of scores
-    sns.violinplot(data=data, x=x, y="score", ax=axes[0, 2])
+    sns.violinplot(data=data, x=x, y="score", ax=axes[0, 2], hue=x, palette="bright")
     axes[0, 2].set_title("Violin Plot of Score Distributions")
 
     # Count plot of largest tiles
@@ -125,14 +127,16 @@ def make_cat_plots_for_adversaries(
     axes[1, 0].set_title("Largest Tile Counts vs Adversary")
 
     # Box plot of turns taken
-    sns.boxplot(data=data, x=x, y="turns_taken", ax=axes[1, 1])
+    sns.boxplot(data=data, x=x, y="turns_taken", ax=axes[1, 1], hue=x, palette="bright")
     axes[1, 1].set_title("Box Plot of Turns Taken Distributions")
 
     # Violin plot of turns taken
-    sns.violinplot(data=data, x=x, y="turns_taken", ax=axes[1, 2])
+    sns.violinplot(
+        data=data, x=x, y="turns_taken", ax=axes[1, 2], hue=x, palette="bright"
+    )
     axes[1, 2].set_title("Violin Plot of Turns Taken Distributions")
 
-    fig.suptitle(title, fontsize=16, y=1.02)
+    fig.suptitle(title, fontsize=16)
     plt.tight_layout()
     plt.show()
 
