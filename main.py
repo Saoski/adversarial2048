@@ -206,95 +206,95 @@ def main() -> None:
     rollout = 20
     monte_carlo_depth = 12
     for depth in range(1, 7):
-        # path = f"data/expectimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
-        # if os.path.exists(path):
-        #     print(f"Found data for {path}")
-        # else:
-        #     print(f"Running sims for {path}")
-        #     game_stats = run_expectimax_vs_random(simulation_count, depth)
-        #     df = pd.DataFrame([asdict(stats) for stats in game_stats])
-        #     print(df["score"].mean())
-        #     df.to_csv(path)
+        path = f"data/expectimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_expectimax_vs_random(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
 
-        # path = f"data/expectimax_vs_expectimax_depth_{depth}_simulations_{simulation_count}.csv"
-        # if os.path.exists(path):
-        #     print(f"Found data for {path}")
-        # else:
-        #     print(f"Running sims for {path}")
-        #     game_stats = run_expectimax_vs_expectimax(simulation_count, depth)
-        #     df = pd.DataFrame([asdict(stats) for stats in game_stats])
-        #     print(df["score"].mean())
-        #     df.to_csv(path)
+        path = f"data/expectimax_vs_expectimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_expectimax_vs_expectimax(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
 
-        # path = f"data/random_vs_expectimax_depth_{depth}_simulations_{simulation_count}.csv"
-        # if os.path.exists(path):
-        #     print(f"Found data for {path}")
-        # else:
-        #     print(f"Running sims for {path}")
-        #     game_stats = run_random_vs_expectimax(simulation_count, depth)
-        #     df = pd.DataFrame([asdict(stats) for stats in game_stats])
-        #     print(df["score"].mean())
-        #     df.to_csv(path)
+        path = f"data/random_vs_expectimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_random_vs_expectimax(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
 
-        # path = f"data/random_vs_random_simulations_{simulation_count}.csv"
-        # if os.path.exists(path):
-        #     print(f"Found data for {path}")
-        # else:
-        #     print(f"Running sims for {path}")
-        #     game_stats = run_random_vs_random(simulation_count, depth)
-        #     df = pd.DataFrame([asdict(stats) for stats in game_stats])
-        #     print(df["score"].mean())
-        #     df.to_csv(path)
+        path = f"data/random_vs_random_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_random_vs_random(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
 
-        # path = f"data/minimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
-        # if os.path.exists(path):
-        #     print(f"Found data for {path}")
-        # else:
-        #     print(f"Running sims for {path}")
-        #     game_stats = run_minimax_vs_random(simulation_count, depth)
-        #     df = pd.DataFrame([asdict(stats) for stats in game_stats])
-        #     print(df["score"].mean())
-        #     df.to_csv(path)
+        path = f"data/minimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_minimax_vs_random(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
 
-        # path = f"data/random_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
-        # if os.path.exists(path):
-        #     print(f"Found data for {path}")
-        # else:
-        #     print(f"Running sims for {path}")
-        #     game_stats = run_random_vs_minimax(simulation_count, depth)
-        #     df = pd.DataFrame([asdict(stats) for stats in game_stats])
-        #     print(df["score"].mean())
-        #     df.to_csv(path)
+        path = f"data/random_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_random_vs_minimax(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
 
-        # path = f"data/minimax_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
-        # if os.path.exists(path):
-        #     print(f"Found data for {path}")
-        # else:
-        #     print(f"Running sims for {path}")
-        #     game_stats = run_minimax_vs_minimax(simulation_count, depth)
-        #     df = pd.DataFrame([asdict(stats) for stats in game_stats])
-        #     print(df["score"].mean())
-        #     df.to_csv(path)
+        path = f"data/minimax_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_minimax_vs_minimax(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
 
-        # path = f"data/expectimax_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
-        # if os.path.exists(path):
-        #     print(f"Found data for {path}")
-        # else:
-        #     print(f"Running sims for {path}")
-        #     game_stats = run_expectimax_vs_minimax(simulation_count, depth)
-        #     df = pd.DataFrame([asdict(stats) for stats in game_stats])
-        #     print(df["score"].mean())
-        #     df.to_csv(path)
+        path = f"data/expectimax_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_expectimax_vs_minimax(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
 
-        # path = f"data/minimax_vs_expectimax_depth_{depth}_simulations_{simulation_count}.csv"
-        # if os.path.exists(path):
-        #     print(f"Found data for {path}")
-        # else:
-        #     print(f"Running sims for {path}")
-        #     game_stats = run_minimax_vs_expectimax(simulation_count, depth)
-        #     df = pd.DataFrame([asdict(stats) for stats in game_stats])
-        #     print(df["score"].mean())
-        #     df.to_csv(path)
+        path = f"data/minimax_vs_expectimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_minimax_vs_expectimax(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
 
         path = f"data/minimax_vs_monte_carlo_minimax_depth_{depth}_rollout_{rollout}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulation_count}.csv"
         if os.path.exists(path):
