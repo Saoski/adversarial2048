@@ -439,7 +439,7 @@ def monte_carlo(
         options: dict,
         other_fn: Callable,
         other_options: dict,
-) -> TwentyFortyEight:
+) -> Direction:
     depth = options["depth"]
     rollouts = options["rollouts"]
     is_player_1 = options["is_player"]
@@ -455,6 +455,10 @@ def monte_carlo(
         rollout_avg = rollout_total/rollouts
         if is_player_1:
             if rollout_avg > best_move_score:
+                best_move_score = rollout_avg
+                best_move = move
+        else:
+            if rollout_avg < best_move_score:
                 best_move_score = rollout_avg
                 best_move = move
     return reverse_engineer_direction_array(game, best_move)

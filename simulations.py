@@ -90,7 +90,7 @@ def run_monte_carlo_vs_monte_carlo(count: int, depth: int, rollout: int) -> list
 
     adversary_fn = monte_carlo
     adversary_options = dict()
-    adversary_options["is_player"] = True
+    adversary_options["is_player"] = False
     adversary_options["depth"] = depth
     adversary_options["rollouts"] = rollout
 
