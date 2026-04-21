@@ -5,13 +5,7 @@ import pygame as pg
 import pygame_gui as gui
 from components.game_board import GameBoard
 from models import random_play, expectimax, compute_direction
-from simulations import (
-    run_minimax_vs_random,
-    run_expectimax_vs_expectimax,
-    run_expectimax_vs_random,
-    run_random_vs_expectimax,
-    run_random_vs_random,
-)
+from simulations import *
 import pandas as pd
 from dataclasses import asdict
 import os
@@ -256,6 +250,46 @@ def main() -> None:
         else:
             print(f"Running sims for {path}")
             game_stats = run_minimax_vs_random(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+
+        path = f"data/random_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_random_vs_minimax(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+
+        path = f"data/minimax_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_minimax_vs_minimax(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+
+        path = f"data/expectimax_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_expectimax_vs_minimax(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+
+        path = f"data/minimax_vs_expectimax_depth_{depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_minimax_vs_expectimax(simulation_count, depth)
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
             df.to_csv(path)
