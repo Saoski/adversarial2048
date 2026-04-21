@@ -5,13 +5,7 @@ import pygame as pg
 import pygame_gui as gui
 from components.game_board import GameBoard
 from models import random_play, expectimax, compute_direction
-from simulations import (
-    run_minimax_vs_random,
-    run_expectimax_vs_expectimax,
-    run_expectimax_vs_random,
-    run_random_vs_expectimax,
-    run_random_vs_random,
-)
+from simulations import *
 import pandas as pd
 from dataclasses import asdict
 import os
@@ -209,7 +203,7 @@ def pygame_main() -> None:
 
 def main() -> None:
     simulation_count = 500
-    for depth in range(1, 6):
+    for depth in range(1, 7):
         path = f"data/expectimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
         if os.path.exists(path):
             print(f"Found data for {path}")
