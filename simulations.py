@@ -90,5 +90,5 @@ def simulate(player_fn, player_options, adversary_fn, adversary_options, count) 
         results.append(GameStats(
             game.score, game.turns_taken, end_time - start_time, largest_tile
         ))
-        print(f"Done {i}")
+        print(f"Done #{i} | {(end_time - start_time):.2f}s | {game.turns_taken} turns | {(game.turns_taken/(end_time - start_time)):.2f} turns/sec")
     return results
