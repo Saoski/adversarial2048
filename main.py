@@ -144,9 +144,11 @@ def main() -> None:
     window_surface = 0
     player_options = dict()
     player_options["is_player"] = True
-    player_options["depth"] = 3
+    player_options["depth"] = 4
     adversary_options = dict()
-    run_game(expectimax, player_options, random_play, adversary_options, window_surface)
+    adversary_options["is_player"] = False
+    adversary_options["depth"] = 4
+    run_game(expectimax, player_options, expectimax, adversary_options, window_surface)
 
     # pg.quit()
 
