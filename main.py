@@ -1,9 +1,10 @@
 from typing import Any
 
 from game import TwentyFortyEight, Direction
-# import pygame as pg
+import pygame as pg
+
 # import pygame_gui as gui
-# from components.game_board import GameBoard
+from components.game_board import GameBoard
 from models import random_play, expectimax, compute_direction
 from simulations import *
 import pandas as pd
@@ -19,68 +20,59 @@ CELL_SIZE = 150
 TIME_DELAY = 0
 
 
-# def update_gui(window_surface: pg.Surface, game_board: GameBoard) -> None:
-#     background = pg.Surface((800, 600))
-#     background.fill(pg.Color("#000000"))
-#     window_surface.blit(background, (0, 0))
-#     game_board.update()
-#     game_board.draw()
-#     pg.display.update()
+def update_gui(window_surface: pg.Surface, game_board: GameBoard) -> None:
+    background = pg.Surface((800, 600))
+    background.fill(pg.Color("#000000"))
+    window_surface.blit(background, (0, 0))
+    game_board.update()
+    game_board.draw()
+    pg.display.update()
 
 
-# def run_game(
-#     player_fn, player_options, adversary_fn, adversary_options, window_surface
-# ) -> None:
-#     game = TwentyFortyEight()
-#     background = pg.Surface((800, 600))
-#     background.fill(pg.Color("#000000"))
-#     game_board = GameBoard((325, 50), 150, game, window_surface)
-#     while True:
-#         print(str(game))
-#         window_surface.blit(background, (0, 0))
-#         game_board.update()
-#         game_board.draw()
-#         pg.display.update()
-#         pg.time.delay(TIME_DELAY)
+def run_game_gui(
+    player_fn, player_options, adversary_fn, adversary_options, window_surface
+) -> None:
+    game = TwentyFortyEight()
+    background = pg.Surface((800, 600))
+    background.fill(pg.Color("#000000"))
+    game_board = GameBoard((325, 50), 150, game, window_surface)
+    while True:
+        print(str(game))
+        update_gui(window_surface, game_board)
+        pg.time.delay(TIME_DELAY)
 
-#         move: Direction | None = compute_direction(
-#             player_fn(game, player_options, adversary_fn, adversary_options)
-#         )
-#         if move is None:
-#             print("B won")
-#             break
-#         game.tilt(move)
-#         print("Player: ", move)
+        move: Direction | None = compute_direction(
+            player_fn(game, player_options, adversary_fn, adversary_options)
+        )
+        if move is None:
+            print("B won")
+            break
+        game.tilt(move)
+        update_gui(window_surface, game_board)
+        pg.time.delay(TIME_DELAY)
+        if game.is_game_over():
+            print("a")
+            break
 
-#         # window_surface.blit(background, (0, 0))
-#         # game_board.update()
-#         # game_board.draw()
-#         # pg.display.update()
-#         # pg.time.delay(TIME_DELAY)
-#         if game.is_game_over():
-#             print("a")
-#             break
-
-#         move: Direction | None = compute_direction(
-#             adversary_fn(game, adversary_options, player_fn, player_options)
-#         )
-#         if move is None:
-#             print("A won")
-#             break
-#         game.tilt(move)
-#         print("Adversary: ", move)
-#         window_surface.blit(background, (0, 0))
-#         game_board.update()
-#         game_board.draw()
-#         pg.display.update()
-#         pg.time.delay(TIME_DELAY)
-#         game.generate_new_tile()
-#     running = True
-#     print(str(game))
-    # while running:
-    # for event in pg.event.get():
-    #     if event.type == pg.QUIT:
-    #         running = False
+        move: Direction | None = compute_direction(
+            adversary_fn(game, adversary_options, player_fn, player_options)
+        )
+        if move is None:
+            print("A won")
+            break
+        game.tilt(move)
+        update_gui(window_surface, game_board)
+        pg.time.delay(TIME_DELAY)
+        game.generate_new_tile()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
+    running = True
+    print(str(game))
+    while running:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
 
 
 # def run_minimax(
@@ -186,7 +178,6 @@ TIME_DELAY = 0
 
 # def pygame_main() -> None:
 #     pg.init()
-#     pg.init()
 
 #     window_surface = pg.display.set_mode(WINDOW_DIMS)
 #     background = pg.Surface((800, 600))
@@ -196,7 +187,7 @@ TIME_DELAY = 0
 #     manager = gui.UIManager(WINDOW_DIMS)
 
 #     player_game_loop(window_surface, background, manager)
-    # run_minimax(window_surface, player_one_min=False, player_two_min=False, depth=5)
+# run_minimax(window_surface, player_one_min=False, player_two_min=False, depth=5)
 
 #     # pg.quit()
 
@@ -246,7 +237,9 @@ def main() -> None:
             print(df["score"].mean())
             df.to_csv(path)
 
-        path = f"data/minimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
+        path = (
+            f"data/minimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
+        )
         if os.path.exists(path):
             print(f"Found data for {path}")
         else:
@@ -256,7 +249,9 @@ def main() -> None:
             print(df["score"].mean())
             df.to_csv(path)
 
-        path = f"data/random_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
+        path = (
+            f"data/random_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
+        )
         if os.path.exists(path):
             print(f"Found data for {path}")
         else:
@@ -266,7 +261,9 @@ def main() -> None:
             print(df["score"].mean())
             df.to_csv(path)
 
-        path = f"data/minimax_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
+        path = (
+            f"data/minimax_vs_minimax_depth_{depth}_simulations_{simulation_count}.csv"
+        )
         if os.path.exists(path):
             print(f"Found data for {path}")
         else:
@@ -300,7 +297,9 @@ def main() -> None:
             print(f"Found data for {path}")
         else:
             print(f"Running sims for {path}")
-            game_stats = run_monte_carlo_vs_monte_carlo(simulation_count, rollout=rollout, depth=monte_carlo_depth)
+            game_stats = run_monte_carlo_vs_monte_carlo(
+                simulation_count, rollout=rollout, depth=monte_carlo_depth
+            )
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
             df.to_csv(path)
@@ -309,7 +308,12 @@ def main() -> None:
             print(f"Found data for {path}")
         else:
             print(f"Running sims for {path}")
-            game_stats = run_monte_carlo_vs_expectimax(simulation_count, rollout=rollout, depth=depth, monte_carlo_depth=monte_carlo_depth)
+            game_stats = run_monte_carlo_vs_expectimax(
+                simulation_count,
+                rollout=rollout,
+                depth=depth,
+                monte_carlo_depth=monte_carlo_depth,
+            )
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
             df.to_csv(path)
@@ -318,7 +322,9 @@ def main() -> None:
             print(f"Found data for {path}")
         else:
             print(f"Running sims for {path}")
-            game_stats = run_monte_carlo_vs_random(simulation_count, rollout=rollout, monte_carlo_depth=monte_carlo_depth)
+            game_stats = run_monte_carlo_vs_random(
+                simulation_count, rollout=rollout, monte_carlo_depth=monte_carlo_depth
+            )
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
             df.to_csv(path)
@@ -327,7 +333,9 @@ def main() -> None:
             print(f"Found data for {path}")
         else:
             print(f"Running sims for {path}")
-            game_stats = run_random_vs_monte_carlo(simulation_count, rollout=rollout, depth=monte_carlo_depth)
+            game_stats = run_random_vs_monte_carlo(
+                simulation_count, rollout=rollout, depth=monte_carlo_depth
+            )
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
             df.to_csv(path)
@@ -368,6 +376,34 @@ def main() -> None:
             print(df["score"].mean())
             df.to_csv(path)
 
+
+def demo_main():
+    pg.init()
+
+    window_surface = pg.display.set_mode(WINDOW_DIMS)
+    background = pg.Surface((800, 600))
+    background.fill(pg.Color("#000000"))
+
+    player_fn = monte_carlo
+    player_options = dict()
+    player_options["is_player"] = True
+    player_options["depth"] = 12
+    player_options["rollouts"] = 20
+
+    adversary_fn = random_play
+    adversary_options = dict()
+    run_game_gui(
+        player_fn=player_fn,
+        player_options=player_options,
+        adversary_fn=adversary_fn,
+        adversary_options=adversary_options,
+        window_surface=window_surface,
+    )
+
+    pg.quit()
+    pass
+
+
 if __name__ == "__main__":
-    main()
-    # pygame_main()
+    # main()
+    demo_main()
