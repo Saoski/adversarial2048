@@ -35,12 +35,13 @@ def random_play(game: TwentyFortyEight, my_options, other_fn: Callable, other_op
 
 
 def compute_direction(moves) -> Direction | None:
+    rand_num = random.random()
     if (sum(moves) == 0):
         return None
     s = 0
     for i in range(0, 4):
         s += moves[i]
-        if choice < s:
+        if rand_num < s:
             match i:
                 case 0:
                     return Direction.UP

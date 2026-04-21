@@ -198,7 +198,7 @@ def pygame_main() -> None:
     # pg.quit()
 
 def expectimax_main() -> None:
-    simulation_count = 500
+    simulation_count = 20
     for depth in range(1, 6):
         path = f"data/expectimax_vs_random_depth_{depth}_simulations_{simulation_count}.csv"
         if os.path.exists(path):
@@ -265,5 +265,5 @@ def minimax_main():
 
 
 if __name__ == "__main__":
-    minimax_main()
+    expectimax_main()
     # pygame_main()
