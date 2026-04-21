@@ -434,7 +434,7 @@ def expectimax_helper_adversary_new_tile(game, depth) -> float:
     return sum / num
 
 # Returns the direction of the move with the best results from averaging random simulations starting from a certain move
-def monte_carlo_play(
+def monte_carlo(
         game: TwentyFortyEight,
         options: dict,
         other_fn: Callable,
