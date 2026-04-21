@@ -198,7 +198,7 @@ TIME_DELAY = 0
 #     player_game_loop(window_surface, background, manager)
     # run_minimax(window_surface, player_one_min=False, player_two_min=False, depth=5)
 
-    # pg.quit()
+#     # pg.quit()
 
 
 def main() -> None:
@@ -292,6 +292,42 @@ def main() -> None:
         else:
             print(f"Running sims for {path}")
             game_stats = run_minimax_vs_expectimax(simulation_count, depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+        path = f"data/monte-carlo_vs_monte-carlo_rollout_{rollout}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_monte_carlo_vs_monte_carlo(simulation_count, rollout=rollout, depth=monte_carlo_depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+        path = f"data/monte-carlo_vs_expectimax_rollout_{rollout}_expectimax_depth_{depth}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_monte_carlo_vs_expectimax(simulation_count, rollout=rollout, depth=depth, monte_carlo_depth=monte_carlo_depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+        path = f"data/monte-carlo_vs_random_rollout_{rollout}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_monte_carlo_vs_random(simulation_count, rollout=rollout, monte_carlo_depth=monte_carlo_depth)
+            df = pd.DataFrame([asdict(stats) for stats in game_stats])
+            print(df["score"].mean())
+            df.to_csv(path)
+        path = f"data/random_vs_monte-carlo_rollout_{rollout}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulation_count}.csv"
+        if os.path.exists(path):
+            print(f"Found data for {path}")
+        else:
+            print(f"Running sims for {path}")
+            game_stats = run_random_vs_monte_carlo(simulation_count, rollout=rollout, depth=monte_carlo_depth)
             df = pd.DataFrame([asdict(stats) for stats in game_stats])
             print(df["score"].mean())
             df.to_csv(path)
