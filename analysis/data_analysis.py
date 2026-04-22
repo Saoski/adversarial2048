@@ -121,6 +121,18 @@ def read_monte_carlo_vs_adversary_data() -> DataFrame:
     monte_carlo_depth = 12
     simulations = 500
 
+    # Monte-carlo vs Random
+    path = f"../data/monte_carlo_vs_random_rollout_{rollout}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["adversary"] = "random"
+    df["monte_carlo_depth"] = monte_carlo_depth
+    df["rollout"] = rollout
+
+    dfs.append(df)
+
     # Monte-carlo vs Minimax
     path = f"../data/monte_carlo_vs_minimax_minimax_depth_{depth}_rollout_{rollout}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulations}.csv"
     df = pd.read_csv(
@@ -139,13 +151,29 @@ def read_monte_carlo_vs_adversary_data() -> DataFrame:
         path,
         index_col=0,
     )
-    df["adversary"] = "minimax"
+    df["adversary"] = "expectimax"
     df["monte_carlo_depth"] = monte_carlo_depth
     df["rollout"] = rollout
 
     dfs.append(df)
 
-    return pd.concat(dfs)
+    # Monte-carlo vs Monte-carlo
+    path = f"../data/monte_carlo_vs_monte_carlo_rollout_{rollout}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["adversary"] = "monte carlo"
+    df["monte_carlo_depth"] = monte_carlo_depth
+    df["rollout"] = rollout
+
+    dfs.append(df)
+
+    goober = pd.concat(dfs)
+
+    print(goober['adversary'].unique())
+
+    return goober
 
 
 def read_monte_carlo_vs_random_data() -> DataFrame:
