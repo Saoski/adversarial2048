@@ -114,6 +114,55 @@ def read_minimax_vs_adversary_data() -> DataFrame:
     big_df["depth"] = depth
     return big_df
 
+def read_expectimax_vs_adversary_data() -> DataFrame:
+    dfs: list[DataFrame] = []
+    depth = 5
+    rollout = 20
+    monte_carlo_depth = 12
+    simulations = 500
+
+    # Expectimax vs random
+    path = f"../data/expectimax_vs_random_depth_{depth}_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["adversary"] = "random"
+    dfs.append(df)
+
+    # Expectimax vs minimax
+    path = f"../data/expectimax_vs_minimax_depth_{depth}_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["adversary"] = "minimax"
+    dfs.append(df)
+
+    # Expectimax vs expectimax
+    path = f"../data/expectimax_vs_expectimax_depth_{depth}_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["adversary"] = "expectimax"
+    dfs.append(df)
+
+    # Expectimax vs monte carlo
+    path = f"../data/expectimax_vs_monte_carlo_expectimax_depth_{depth}_rollout_{rollout}_monte_carlo_depth_{monte_carlo_depth}_simulations_{simulations}.csv"
+    df = pd.read_csv(
+        path,
+        index_col=0,
+    )
+    df["adversary"] = "monte_carlo"
+    df["monte_carlo_depth"] = monte_carlo_depth
+    df["rollout"] = rollout
+    dfs.append(df)
+
+    big_df = pd.concat(dfs)
+    big_df["depth"] = depth
+    return big_df
+
 def read_monte_carlo_vs_adversary_data() -> DataFrame:
     dfs: list[DataFrame] = []
     depth = 5
